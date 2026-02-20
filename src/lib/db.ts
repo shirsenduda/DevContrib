@@ -19,7 +19,7 @@ export const prisma = new Proxy({} as PrismaClient, {
     if (!globalForPrisma.prisma) {
       globalForPrisma.prisma = createPrismaClient();
     }
-    return (globalForPrisma.prisma as any)[prop];
+    return (globalForPrisma.prisma as unknown as Record<string | symbol, unknown>)[prop];
   },
 });
 

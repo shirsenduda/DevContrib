@@ -95,7 +95,7 @@ export default function AdminDashboardPage() {
           <p className="text-xs text-muted-foreground">No scrape logs yet</p>
         ) : (
           <div className="space-y-2">
-            {recentLogs.map((log: any) => (
+            {recentLogs.map((log: { id: string; status: string; reposScraped: number; issuesFound: number; startedAt: string | null }) => (
               <div
                 key={log.id}
                 className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3"

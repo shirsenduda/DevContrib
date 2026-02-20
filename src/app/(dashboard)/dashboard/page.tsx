@@ -7,7 +7,7 @@ import { Sparkles, RefreshCw, AlertCircle, ArrowRight, Compass, GitPullRequest, 
 import { IssueCard } from '@/components/features/issue-card';
 import { useRecommendation } from '@/hooks/use-issues';
 import { useContributions, useStartContribution } from '@/hooks/use-contributions';
-import { useProfile, useUserStats, useDCS } from '@/hooks/use-profile';
+import { useUserStats, useDCS } from '@/hooks/use-profile';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 
@@ -31,12 +31,12 @@ export default function DashboardPage() {
 
   const contributedIssueIds = new Set(
     (contributionsData?.data || [])
-      .filter((c: any) => c.status !== 'ABANDONED')
-      .map((c: any) => c.issueId),
+      .filter((c: { status: string; issueId: string }) => c.status !== 'ABANDONED')
+      .map((c: { status: string; issueId: string }) => c.issueId),
   );
 
   const activeContributions = (contributionsData?.data || []).filter(
-    (c: any) => c.status === 'STARTED' || c.status === 'PR_OPENED',
+    (c: { status: string }) => c.status === 'STARTED' || c.status === 'PR_OPENED',
   );
 
   const handleRefresh = async () => {

@@ -31,11 +31,13 @@ async function test() {
         console.log(`   - #${issue.number}: ${issue.title}`);
       }
     }
-  } catch (error: any) {
-    console.error('ERROR:', error.message);
-    if (error.response) {
-      console.error('Status:', error.response.status);
-      console.error('Data:', JSON.stringify(error.response.data, null, 2));
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    console.error('ERROR:', err.message);
+    if (typeof error === 'object' && error !== null && 'response' in error) {
+      const resp = (error as { response: { status: number; data: unknown } }).response;
+      console.error('Status:', resp.status);
+      console.error('Data:', JSON.stringify(resp.data, null, 2));
     }
   }
 }

@@ -84,8 +84,9 @@ export function ContributionCard({ contribution, onUpdateStatus, onSync, isUpdat
   const issueUrl = `https://github.com/${contribution.issue.repository.fullName}/issues/${contribution.issue.number}`;
 
   // Stale PR detection
+  const [mountTime] = useState(() => Date.now());
   const prAgeDays = contribution.status === 'PR_OPENED' && contribution.prOpenedAt
-    ? Math.floor((Date.now() - new Date(contribution.prOpenedAt).getTime()) / (1000 * 60 * 60 * 24))
+    ? Math.floor((mountTime - new Date(contribution.prOpenedAt).getTime()) / (1000 * 60 * 60 * 24))
     : 0;
   const staleLevel = prAgeDays >= 90 ? 'critical' : prAgeDays >= 60 ? 'stale' : prAgeDays >= 30 ? 'waiting' : null;
 

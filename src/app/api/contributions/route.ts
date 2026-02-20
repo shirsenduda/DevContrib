@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     const where = {
       userId: user.id,
-      ...(status && { status: status as any }),
+      ...(status && { status: status as import('@prisma/client').ContributionStatus }),
     };
 
     const [contributions, total] = await Promise.all([
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
     return createApiResponse(contribution);
   } catch (error) {
     // P2002 = unique constraint violation (concurrent request)
-    if (error instanceof Error && 'code' in error && (error as any).code === 'P2002') {
+    if (error instanceof Error && 'code' in error && (error as unknown as { code: string }).code === 'P2002') {
       return createErrorResponse('You already have a contribution for this issue', 409);
     }
     return handleApiError(error);

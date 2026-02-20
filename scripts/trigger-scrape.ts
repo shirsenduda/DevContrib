@@ -12,7 +12,7 @@ const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
 });
 
 const scrapeQueue = new Queue('scrape-github-issues', {
-  connection: redis as any,
+  connection: redis as unknown as import('bullmq').ConnectionOptions,
 });
 
 async function trigger() {

@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function handlePullRequestEvent(payload: any) {
+async function handlePullRequestEvent(payload: { action: string; pull_request: { number: number; merged: boolean; merged_at: string; closed_at: string } }) {
   const { action, pull_request } = payload;
   const prNumber = pull_request.number;
 
@@ -119,7 +119,7 @@ async function handlePullRequestEvent(payload: any) {
   }
 }
 
-async function handleIssueEvent(payload: any) {
+async function handleIssueEvent(payload: { action: string; issue: { id: number } }) {
   const { action, issue } = payload;
   const githubId = issue.id;
 

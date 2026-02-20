@@ -121,7 +121,7 @@ export default function ContributionsPage() {
         </div>
       ) : contributions.length > 0 ? (
         <div className="space-y-3">
-          {contributions.map((contribution: any) => (
+          {contributions.map((contribution: { id: string; status: ContributionStatus; prUrl: string | null; prNumber: number | null; startedAt: string; prOpenedAt: string | null; mergedAt: string | null; issueId: string; issue: { title: string; number: number; repository: { fullName: string; owner?: string; name?: string; language: string | null } } }) => (
             <ContributionCard
               key={contribution.id}
               contribution={contribution}

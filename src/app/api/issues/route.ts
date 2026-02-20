@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     // Cache
     const cacheKey = `issues:${difficulty}:${language}:${owner}:${minStars}:${sortBy}:${page}:${pageSize}`;
-    const cached = await cacheGet<{ issues: any[]; total: number }>(cacheKey);
+    const cached = await cacheGet<{ issues: unknown[]; total: number }>(cacheKey);
     if (cached) return createApiResponse(cached.issues, { total: cached.total, page, pageSize });
 
     // Build query

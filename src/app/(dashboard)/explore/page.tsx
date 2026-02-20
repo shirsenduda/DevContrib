@@ -4,6 +4,7 @@ import { IssueCard } from '@/components/features/issue-card';
 import { IssueFilters } from '@/components/features/issue-filters';
 import { useIssues } from '@/hooks/use-issues';
 import { useContributions, useStartContribution } from '@/hooks/use-contributions';
+import type { Difficulty } from '@/types';
 import { useFilterStore } from '@/stores/filter-store';
 import { useRouter } from 'next/navigation';
 import { Compass, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -33,8 +34,8 @@ export default function ExplorePage() {
 
   const contributedIssueIds = new Set(
     (contributionsData?.data || [])
-      .filter((c: any) => c.status !== 'ABANDONED')
-      .map((c: any) => c.issueId),
+      .filter((c: { status: string; issueId: string }) => c.status !== 'ABANDONED')
+      .map((c: { status: string; issueId: string }) => c.issueId),
   );
 
   const handleStartContributing = (issueId: string) => {
@@ -86,7 +87,7 @@ export default function ExplorePage() {
           ) : issues.length > 0 ? (
             <>
               <div className="grid gap-4 sm:grid-cols-2">
-                {issues.map((issue: any) => {
+                {issues.map((issue: { id: string; title: string; body: string | null; number: number; difficulty: Difficulty; mergeProbability: number | null; labels: string[]; commentCount: number; createdAtGithub: string; repository: { fullName: string; owner: string; name: string; language: string | null; stars: number } }) => {
                   const alreadyContributing = contributedIssueIds.has(issue.id);
                   return (
                     <IssueCard
@@ -102,7 +103,7 @@ export default function ExplorePage() {
                         language: issue.repository.language,
                         stars: issue.repository.stars,
                         difficulty: issue.difficulty,
-                        mergeProbability: issue.mergeProbability,
+                        mergeProbability: issue.mergeProbability ?? 0,
                         labels: issue.labels,
                         commentCount: issue.commentCount,
                         matchScore: 0,
