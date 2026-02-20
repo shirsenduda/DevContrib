@@ -53,6 +53,16 @@ export const notificationQueue = new Queue('send-notifications', {
   },
 });
 
+export const prHealthQueue = new Queue('pr-health-check', {
+  connection,
+  defaultJobOptions: {
+    attempts: 3,
+    backoff: { type: 'exponential', delay: 5000 },
+    removeOnComplete: { count: 20 },
+    removeOnFail: { count: 10 },
+  },
+});
+
 export async function setupScheduledJobs() {
   // Scrape every 6 hours
   await scrapeQueue.upsertJobScheduler(
@@ -87,5 +97,12 @@ export async function setupScheduledJobs() {
     'daily-contribution-reminders',
     { pattern: '0 9 * * *' },
     { name: 'contribution-reminders' },
+  );
+
+  // Daily PR health check at 10 AM (stale PR notifications at 5 and 10 days)
+  await prHealthQueue.upsertJobScheduler(
+    'daily-pr-health-check',
+    { pattern: '0 10 * * *' },
+    { name: 'daily-pr-health-check' },
   );
 }

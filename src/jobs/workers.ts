@@ -6,6 +6,7 @@ import { processUpdateProbabilities } from './update-probabilities';
 import { processCheckPrStatus } from './check-pr-status';
 import { processCleanup } from './cleanup';
 import { processSendNotification } from './send-notifications';
+import { processPrHealthCheck } from './pr-health-check';
 
 export function createWorkers() {
   const connection = redis as unknown as ConnectionOptions;
@@ -31,6 +32,10 @@ export function createWorkers() {
     new Worker('send-notifications', processSendNotification, {
       connection,
       concurrency: 5,
+    }),
+    new Worker('pr-health-check', processPrHealthCheck, {
+      connection,
+      concurrency: 1,
     }),
   ];
 

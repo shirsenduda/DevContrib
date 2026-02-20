@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { History, Compass } from 'lucide-react';
+import { History, Compass, Lightbulb } from 'lucide-react';
 import { ContributionCard } from '@/components/features/contribution-card';
+import { IssueCard } from '@/components/features/issue-card';
 import { useContributions, useUpdateContribution, useSyncContribution } from '@/hooks/use-contributions';
+import { useRecommendation } from '@/hooks/use-issues';
 import type { ContributionStatus } from '@prisma/client';
 import { cn } from '@/lib/utils';
 
@@ -26,6 +28,9 @@ export default function ContributionsPage() {
 
   const contributions = data?.data || [];
   const allContributions = allData?.data || [];
+
+  const hasOpenPRs = allContributions.some((c: { status: string }) => c.status === 'PR_OPENED');
+  const { data: recommendations } = useRecommendation(3);
 
   const counts: Record<string, number> = { '': allContributions.length };
   for (const c of allContributions) {
@@ -108,6 +113,24 @@ export default function ContributionsPage() {
           </button>
         ))}
       </div>
+
+      {/* While you wait — recommendations for users with open PRs */}
+      {hasOpenPRs && recommendations && recommendations.length > 0 && (
+        <div className="mb-8 rounded-xl border border-border bg-card p-5">
+          <div className="mb-4 flex items-center gap-2">
+            <Lightbulb className="h-4 w-4 text-amber-500" />
+            <div>
+              <h3 className="text-sm font-semibold">While you wait</h3>
+              <p className="text-xs text-muted-foreground">Pick up another issue while your PR is being reviewed</p>
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {recommendations.map((issue) => (
+              <IssueCard key={issue.id} issue={issue} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Contribution list */}
       {isLoading ? (

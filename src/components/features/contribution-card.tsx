@@ -88,7 +88,7 @@ export function ContributionCard({ contribution, onUpdateStatus, onSync, isUpdat
   const prAgeDays = contribution.status === 'PR_OPENED' && contribution.prOpenedAt
     ? Math.floor((mountTime - new Date(contribution.prOpenedAt).getTime()) / (1000 * 60 * 60 * 24))
     : 0;
-  const staleLevel = prAgeDays >= 90 ? 'critical' : prAgeDays >= 60 ? 'stale' : prAgeDays >= 30 ? 'waiting' : null;
+  const staleLevel = prAgeDays >= 14 ? 'critical' : prAgeDays >= 10 ? 'stale' : prAgeDays >= 5 ? 'waiting' : null;
 
   const handlePrSubmit = () => {
     if (!prUrl.trim()) {
@@ -180,17 +180,17 @@ export function ContributionCard({ contribution, onUpdateStatus, onSync, isUpdat
           <div>
             <p className="font-medium">
               {staleLevel === 'critical'
-                ? `PR open for ${prAgeDays} days — likely inactive`
+                ? `PR open for ${prAgeDays} days — likely needs attention`
                 : staleLevel === 'stale'
-                  ? `PR open for ${prAgeDays} days — no merge activity`
-                  : `PR waiting for ${prAgeDays} days`}
+                  ? `PR open for ${prAgeDays} days — still no review activity`
+                  : `PR waiting for ${prAgeDays} days — no reviews yet`}
             </p>
             <p className="mt-0.5 text-muted-foreground">
               {staleLevel === 'critical'
-                ? 'Consider abandoning and picking a more active issue.'
+                ? 'The maintainers may be inactive. Consider abandoning and picking a more responsive repo, or try reaching out on their Discord/Slack.'
                 : staleLevel === 'stale'
-                  ? 'Try commenting on the PR to get maintainer attention, or sync to check status.'
-                  : 'Some maintainers take time to review. You can sync to check for updates.'}
+                  ? 'Try tagging a maintainer or check the CODEOWNERS file. You can also start working on another issue while waiting.'
+                  : 'Check if your CI is passing. A polite comment like "Ready for review!" can help.'}
             </p>
           </div>
         </div>
