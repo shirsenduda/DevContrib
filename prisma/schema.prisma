@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --- Enums ---
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum ContributionStatus {
+  STARTED
+  PR_OPENED
+  PR_MERGED
+  PR_CLOSED
+  ABANDONED
+}
+
+enum ScrapeStatus {
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+// --- Models ---
+
+model Repository {
+  id              String    @id @default(cuid())
+  githubId        BigInt    @unique @map("github_id")
+  fullName        String    @map("full_name")
+  owner           String
+  name            String
+  description     String?
+  company         String?
+  language        String?
+  languages       String[]  @default([])
+  stars           Int       @default(0)
+  forks           Int       @default(0)
+  openIssuesCount Int       @default(0) @map("open_issues_count")
+  healthScore     Float     @default(0) @map("health_score")
+  lastScrapedAt   DateTime? @map("last_scraped_at")
+  isActive        Boolean   @default(true) @map("is_active")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  issues Issue[]
+
+  @@index([language])
+  @@index([stars])
+  @@index([healthScore])
+  @@index([isActive])
+  @@index([lastScrapedAt])
+  @@index([isActive, language, stars])
+  @@map("repositories")
+}
+
+model Issue {
+  id               String     @id @default(cuid())
+  githubId         BigInt     @unique @map("github_id")
+  repoId           String     @map("repo_id")
+  number           Int
+  title            String
+  body             String?
+  labels           String[]   @default([])
+  difficulty       Difficulty @default(EASY)
+  mergeProbability Float      @default(0) @map("merge_probability")
+  isAssigned       Boolean    @default(false) @map("is_assigned")
+  isOpen           Boolean    @default(true) @map("is_open")
+  commentCount     Int        @default(0) @map("comment_count")
+  createdAtGithub  DateTime   @map("created_at_github")
+  updatedAtGithub  DateTime   @map("updated_at_github")
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @updatedAt @map("updated_at")
+
+  repository    Repository         @relation(fields: [repoId], references: [id], onDelete: Cascade)
+  contributions UserContribution[]
+
+  @@index([repoId])
+  @@index([difficulty])
+  @@index([mergeProbability])
+  @@index([isOpen, isAssigned])
+  @@index([createdAtGithub])
+  @@index([updatedAtGithub])
+  @@map("issues")
+}
+
+model User {
+  id                 String     @id @default(cuid())
+  githubId           Int?       @unique @map("github_id")
+  username           String?    @unique
+  email              String?    @unique
+  emailVerified      DateTime?  @map("email_verified")
+  name               String?
+  image              String?
+  avatarUrl          String?    @map("avatar_url")
+  skillLevel         SkillLevel @default(BEGINNER) @map("skill_level")
+  preferredLanguages String[]   @default([]) @map("preferred_languages")
+  bio                String?
+  createdAt          DateTime   @default(now()) @map("created_at")
+  updatedAt          DateTime   @updatedAt @map("updated_at")
+
+  accounts      Account[]
+  sessions      Session[]
+  contributions UserContribution[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model UserContribution {
+  id         String             @id @default(cuid())
+  userId     String             @map("user_id")
+  issueId    String             @map("issue_id")
+  prUrl      String?            @map("pr_url")
+  prNumber   Int?               @map("pr_number")
+  status     ContributionStatus @default(STARTED)
+  startedAt  DateTime           @default(now()) @map("started_at")
+  prOpenedAt DateTime?          @map("pr_opened_at")
+  mergedAt   DateTime?          @map("merged_at")
+  closedAt   DateTime?          @map("closed_at")
+  createdAt  DateTime           @default(now()) @map("created_at")
+  updatedAt  DateTime           @updatedAt @map("updated_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, issueId])
+  @@index([userId])
+  @@index([status])
+  @@index([status, startedAt])
+  @@map("user_contributions")
+}
+
+model ScrapeLog {
+  id            String       @id @default(cuid())
+  startedAt     DateTime     @default(now()) @map("started_at")
+  completedAt   DateTime?    @map("completed_at")
+  reposScraped  Int          @default(0) @map("repos_scraped")
+  issuesFound   Int          @default(0) @map("issues_found")
+  issuesUpdated Int          @default(0) @map("issues_updated")
+  errors        String[]     @default([])
+  status        ScrapeStatus @default(RUNNING)
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("scrape_logs")
+}
