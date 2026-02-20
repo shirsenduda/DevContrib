@@ -4,16 +4,17 @@ import prisma from '@/lib/db';
 import { getNovu } from '@/lib/novu';
 import { logger } from '@/lib/logger';
 
-const webhookSecret = process.env.GITHUB_WEBHOOK_SECRET;
-if (!webhookSecret && process.env.NODE_ENV === 'production') {
-  throw new Error('GITHUB_WEBHOOK_SECRET must be set in production');
+function getWebhooks() {
+  const secret = process.env.GITHUB_WEBHOOK_SECRET;
+  if (!secret && process.env.NODE_ENV === 'production') {
+    throw new Error('GITHUB_WEBHOOK_SECRET must be set in production');
+  }
+  return new Webhooks({ secret: secret || 'development-secret' });
 }
-const webhooks = new Webhooks({
-  secret: webhookSecret || 'development-secret',
-});
 
 export async function POST(request: NextRequest) {
   try {
+    const webhooks = getWebhooks();
     const body = await request.text();
     const signature = request.headers.get('x-hub-signature-256') || '';
     const event = request.headers.get('x-github-event') || '';
