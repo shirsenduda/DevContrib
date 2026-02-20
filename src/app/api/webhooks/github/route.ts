@@ -4,8 +4,12 @@ import prisma from '@/lib/db';
 import { getNovu } from '@/lib/novu';
 import { logger } from '@/lib/logger';
 
+const webhookSecret = process.env.GITHUB_WEBHOOK_SECRET;
+if (!webhookSecret && process.env.NODE_ENV === 'production') {
+  throw new Error('GITHUB_WEBHOOK_SECRET must be set in production');
+}
 const webhooks = new Webhooks({
-  secret: process.env.GITHUB_WEBHOOK_SECRET || 'development-secret',
+  secret: webhookSecret || 'development-secret',
 });
 
 export async function POST(request: NextRequest) {
@@ -75,20 +79,22 @@ async function handlePullRequestEvent(payload: { action: string; pull_request: {
       });
       logger.info({ prNumber, contributionId: contribution.id }, 'PR merged');
 
-      try {
-        await getNovu().trigger({
-          workflowId: 'pr-merged',
-          to: contribution.userId,
-          transactionId: `pr-merged-${contribution.id}`,
-          payload: {
-            repoFullName: contribution.issue.repository.fullName,
-            issueTitle: contribution.issue.title,
-            prNumber: contribution.prNumber,
-            prUrl: contribution.prUrl,
-          },
-        });
-      } catch (e) {
-        logger.error({ contributionId: contribution.id, error: e }, 'Failed to send pr-merged notification');
+      if (contribution.prNumber && contribution.prUrl) {
+        try {
+          await getNovu().trigger({
+            workflowId: 'pr-merged',
+            to: contribution.userId,
+            transactionId: `pr-merged-${contribution.id}`,
+            payload: {
+              repoFullName: contribution.issue.repository.fullName,
+              issueTitle: contribution.issue.title,
+              prNumber: contribution.prNumber,
+              prUrl: contribution.prUrl,
+            },
+          });
+        } catch (e) {
+          logger.error({ contributionId: contribution.id, error: e }, 'Failed to send pr-merged notification');
+        }
       }
     } else if (action === 'closed' && !pull_request.merged) {
       await prisma.userContribution.update({
@@ -100,20 +106,22 @@ async function handlePullRequestEvent(payload: { action: string; pull_request: {
       });
       logger.info({ prNumber, contributionId: contribution.id }, 'PR closed without merge');
 
-      try {
-        await getNovu().trigger({
-          workflowId: 'pr-closed',
-          to: contribution.userId,
-          transactionId: `pr-closed-${contribution.id}`,
-          payload: {
-            repoFullName: contribution.issue.repository.fullName,
-            issueTitle: contribution.issue.title,
-            prNumber: contribution.prNumber,
-            prUrl: contribution.prUrl,
-          },
-        });
-      } catch (e) {
-        logger.error({ contributionId: contribution.id, error: e }, 'Failed to send pr-closed notification');
+      if (contribution.prNumber && contribution.prUrl) {
+        try {
+          await getNovu().trigger({
+            workflowId: 'pr-closed',
+            to: contribution.userId,
+            transactionId: `pr-closed-${contribution.id}`,
+            payload: {
+              repoFullName: contribution.issue.repository.fullName,
+              issueTitle: contribution.issue.title,
+              prNumber: contribution.prNumber,
+              prUrl: contribution.prUrl,
+            },
+          });
+        } catch (e) {
+          logger.error({ contributionId: contribution.id, error: e }, 'Failed to send pr-closed notification');
+        }
       }
     }
   }

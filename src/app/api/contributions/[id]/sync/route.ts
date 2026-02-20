@@ -7,12 +7,16 @@ import {
   requireAuth,
   handleApiError,
 } from '@/lib/api-helpers';
+import { withRateLimit } from '@/lib/rate-limit';
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const rateLimited = await withRateLimit(request, { maxRequests: 10, windowMs: 60_000 });
+    if (rateLimited) return rateLimited;
+
     const user = await requireAuth();
     const { id } = await params;
 

@@ -31,14 +31,16 @@ export async function GET() {
       },
     });
 
-    // Transform to scoring input
-    const inputs: ContributionInput[] = contributions.map((c) => ({
-      status: c.status,
-      difficulty: c.issue.difficulty,
-      repoStars: c.issue.repository.stars,
-      startedAt: c.startedAt,
-      mergedAt: c.mergedAt,
-    }));
+    // Transform to scoring input (filter out contributions with missing issue/repository data)
+    const inputs: ContributionInput[] = contributions
+      .filter(c => c.issue?.repository)
+      .map((c) => ({
+        status: c.status,
+        difficulty: c.issue.difficulty,
+        repoStars: c.issue.repository.stars,
+        startedAt: c.startedAt,
+        mergedAt: c.mergedAt,
+      }));
 
     const result = calculateDCS(inputs);
 

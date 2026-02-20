@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import prisma from '@/lib/db';
 import {
   createApiResponse,
+  createErrorResponse,
   requireAuth,
   handleApiError,
   validateBody,
@@ -28,6 +29,10 @@ export async function GET() {
         createdAt: true,
       },
     });
+
+    if (!profile) {
+      return createErrorResponse('User not found', 404);
+    }
 
     return createApiResponse(profile);
   } catch (error) {
