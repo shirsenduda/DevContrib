@@ -10,6 +10,7 @@ import {
 } from '@/lib/api-helpers';
 import { withRateLimit } from '@/lib/rate-limit';
 import { contributionCreateSchema } from '@/types/schemas';
+import type { ContributionStatus } from '@/types';
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
 
     const where = {
       userId: user.id,
-      ...(status && { status: status as import('@prisma/client').ContributionStatus }),
+      ...(status && { status: status as ContributionStatus }),
     };
 
     const [contributions, total] = await Promise.all([
