@@ -269,6 +269,23 @@ export default function DashboardPage() {
         )}
       </motion.div>
 
+      {/* Explore CTA */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+        className="flex justify-center pb-4"
+      >
+        <Link
+          href="/explore"
+          className="group flex items-center gap-2.5 rounded-full border border-border bg-card px-6 py-3 text-sm font-medium transition-all hover:border-foreground/20 hover:bg-secondary hover:shadow-lg"
+        >
+          <Compass className="h-4 w-4 text-blue transition-transform group-hover:rotate-45" />
+          Explore All Repositories
+          <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+        </Link>
+      </motion.div>
+
       {/* Toast */}
       {toast && (
         <motion.div
