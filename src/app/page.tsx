@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform, useMotionValue, useSpring, animate } f
 import { useRef, useEffect, useState } from 'react';
 import { Search, Zap, CheckCircle, ArrowRight, Github, ChevronRight } from 'lucide-react';
 import { Logo } from '@/components/layout/logo';
+import { Footer } from '@/components/layout/footer';
 
 /* ─── Animated counter hook ─── */
 function useAnimatedCounter(target: number, duration = 2) {
@@ -365,18 +366,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Footer ─── */}
-      <footer className="border-t border-border py-8">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6">
-          <div className="flex items-center gap-3">
-            <Logo variant="small" />
-            <span className="text-xs text-muted-foreground/50">|</span>
-            <p className="text-xs text-muted-foreground">Developed by SHIR</p>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Making open source contributions easier.
-          </p>
-        </div>
-      </footer>
+      <Footer href="/" />
     </div>
   );
 }
