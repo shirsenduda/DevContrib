@@ -1,5 +1,5 @@
 import type { DefaultSession } from 'next-auth';
-import type { SkillLevel } from '@prisma/client';
+import type { SkillLevel } from '@/types';
 
 declare module 'next-auth' {
   interface Session {

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { ContributionStatus } from '@prisma/client';
+import type { ContributionStatus } from '@/types';
 
 async function fetchContributions(status?: string) {
   const params = new URLSearchParams();

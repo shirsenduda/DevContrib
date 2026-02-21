@@ -1,7 +1,7 @@
 import prisma from '@/lib/db';
 import { cacheGet, cacheSet } from '@/lib/redis';
 import type { RecommendedIssue } from '@/types';
-import type { SkillLevel, Difficulty } from '@prisma/client';
+import type { SkillLevel, Difficulty } from '@/types';
 
 const CACHE_TTL = 3600; // 1 hour
 

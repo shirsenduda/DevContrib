@@ -1,4 +1,4 @@
-import type { ContributionStatus, Difficulty } from '@prisma/client';
+import type { ContributionStatus, Difficulty } from '@/types';
 
 // --- Types ---
 

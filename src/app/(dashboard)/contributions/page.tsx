@@ -7,7 +7,7 @@ import { ContributionCard } from '@/components/features/contribution-card';
 import { IssueCard } from '@/components/features/issue-card';
 import { useContributions, useUpdateContribution, useSyncContribution } from '@/hooks/use-contributions';
 import { useRecommendation } from '@/hooks/use-issues';
-import type { ContributionStatus } from '@prisma/client';
+import type { ContributionStatus } from '@/types';
 import { cn } from '@/lib/utils';
 
 const TABS = [

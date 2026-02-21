@@ -14,7 +14,7 @@ import {
   Hourglass,
 } from 'lucide-react';
 import { cn, formatRelativeTime } from '@/lib/utils';
-import type { ContributionStatus } from '@prisma/client';
+import type { ContributionStatus } from '@/types';
 
 const statusConfig: Record<
   ContributionStatus,
