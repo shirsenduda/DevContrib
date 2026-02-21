@@ -4,10 +4,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { useState } from 'react';
-import { GitBranch, Menu, X, LogOut, User, LayoutDashboard, Compass, History, Flame, Shield } from 'lucide-react';
+import { Menu, X, LogOut, User, LayoutDashboard, Compass, History, Flame, Shield } from 'lucide-react';
 import { useUserStats } from '@/hooks/use-profile';
 import { cn } from '@/lib/utils';
 import { NotificationInbox } from './notification-inbox';
+import { Logo } from './logo';
 
 const navLinks = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -25,10 +26,7 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
         {/* Logo */}
-        <Link href={session ? '/dashboard' : '/'} className="flex items-center gap-2">
-          <GitBranch className="h-5 w-5" />
-          <span className="text-base font-semibold tracking-tight">DevContrib</span>
-        </Link>
+        <Logo href={session ? '/dashboard' : '/'} />
 
         {/* Desktop Nav - centered pill navigation */}
         {session && (

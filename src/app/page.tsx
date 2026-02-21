@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { motion, useScroll, useTransform, useMotionValue, useSpring, animate } from 'framer-motion';
 import { useRef, useEffect, useState } from 'react';
-import { GitBranch, Search, Zap, CheckCircle, ArrowRight, Github, ChevronRight } from 'lucide-react';
+import { Search, Zap, CheckCircle, ArrowRight, Github, ChevronRight } from 'lucide-react';
+import { Logo } from '@/components/layout/logo';
 
 /* ─── Animated counter hook ─── */
 function useAnimatedCounter(target: number, duration = 2) {
@@ -91,10 +92,7 @@ export default function LandingPage() {
       {/* ─── Navbar ─── */}
       <nav className="fixed top-0 z-50 w-full border-b border-white/[0.04] bg-background/60 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <div className="flex items-center gap-2">
-            <GitBranch className="h-5 w-5" />
-            <span className="text-base font-semibold tracking-tight">DevContrib</span>
-          </div>
+          <Logo href="/" />
           <div className="hidden items-center gap-8 sm:flex">
             <a href="#how-it-works" className="text-sm text-muted-foreground transition-colors hover:text-foreground">How it works</a>
             <a href="#stats" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Stats</a>
@@ -141,7 +139,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-border bg-card/80 px-4 py-2 text-sm backdrop-blur-sm"
+            className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-border bg-card/80 px-4 py-2 text-xs backdrop-blur-sm sm:text-sm"
           >
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
@@ -156,7 +154,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="mx-auto max-w-5xl text-5xl font-bold tracking-tighter sm:text-7xl lg:text-[80px] lg:leading-[0.95]"
+            className="mx-auto max-w-3xl text-3xl font-bold tracking-tight sm:text-5xl lg:text-6xl lg:leading-tight"
           >
             Find and ship your next{' '}
             <br className="hidden sm:block" />
@@ -168,7 +166,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-[17px]"
+            className="mx-auto mt-5 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base"
           >
             DevContrib matches you with high-quality GitHub issues
             <br className="hidden sm:block" />
@@ -180,11 +178,11 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
+            className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
           >
             <Link
               href="/login"
-              className="group inline-flex items-center gap-2.5 rounded-full bg-foreground px-7 py-3.5 text-sm font-medium text-background transition-all hover:opacity-90"
+              className="group inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background transition-all hover:opacity-90"
             >
               <Github className="h-4 w-4" />
               Start Contributing
@@ -192,7 +190,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="#how-it-works"
-              className="inline-flex items-center gap-2 rounded-full border border-border px-7 py-3.5 text-sm font-medium text-muted-foreground transition-all hover:border-foreground/20 hover:text-foreground"
+              className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium text-muted-foreground transition-all hover:border-foreground/20 hover:text-foreground"
             >
               See how it works
             </Link>
@@ -369,9 +367,10 @@ export default function LandingPage() {
       {/* ─── Footer ─── */}
       <footer className="border-t border-border py-8">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <GitBranch className="h-4 w-4" />
-            <span>DevContrib</span>
+          <div className="flex items-center gap-3">
+            <Logo variant="small" />
+            <span className="text-xs text-muted-foreground/50">|</span>
+            <p className="text-xs text-muted-foreground">Developed by SHIR</p>
           </div>
           <p className="text-xs text-muted-foreground">
             Making open source contributions easier.

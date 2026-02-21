@@ -266,13 +266,16 @@ a,
   }
 }
 
-/* Hero perspective grid lines */
+/* Hero perspective grid lines — Vercel style */
 .hero-grid {
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 80px 80px;
-  mask-image: radial-gradient(ellipse 70% 50% at 50% 50%, black 20%, transparent 70%);
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image:
+    linear-gradient(to bottom, transparent, black 20%, black 60%, transparent 100%),
+    linear-gradient(to right, transparent, black 15%, black 85%, transparent 100%);
+  mask-composite: intersect;
 }
 
 /* Smooth scrollbar */
