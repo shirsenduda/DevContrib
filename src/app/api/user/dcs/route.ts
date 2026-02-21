@@ -33,7 +33,7 @@ export async function GET() {
 
     // Transform to scoring input (filter out contributions with missing issue/repository data)
     const inputs: ContributionInput[] = contributions
-      .filter(c => c.issue?.repository)
+      .filter((c: (typeof contributions)[number]) => c.issue?.repository)
       .map((c) => ({
         status: c.status,
         difficulty: c.issue.difficulty,
