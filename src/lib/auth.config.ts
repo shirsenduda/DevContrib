@@ -4,6 +4,7 @@ import type { NextAuthConfig } from 'next-auth';
 // Shared auth config - edge-compatible (no Prisma/DB imports)
 // Used by both middleware and the full auth.ts
 export const authConfig: NextAuthConfig = {
+  trustHost: true,
   session: { strategy: 'jwt' },
   providers: [
     GitHub({
