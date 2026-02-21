@@ -1,71 +1,57 @@
-import { redis } from './redis';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-interface RateLimitConfig {
-  windowMs: number;
-  maxRequests: number;
-  keyPrefix: string;
+/**
+ * Simple in-memory rate limiter for API routes.
+ * Tracks requests per IP with a sliding window.
+ */
+const ipRequestMap = new Map<string, { count: number; resetTime: number }>();
+
+// Clean up stale entries every 5 minutes
+if (typeof setInterval !== 'undefined') {
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, value] of ipRequestMap) {
+      if (now > value.resetTime) {
+        ipRequestMap.delete(key);
+      }
+    }
+  }, 5 * 60 * 1000);
 }
 
-const DEFAULT_CONFIG: RateLimitConfig = {
-  windowMs: 60_000,
-  maxRequests: 60,
-  keyPrefix: 'rl:api',
-};
-
-export async function checkRateLimit(
-  identifier: string,
-  config: Partial<RateLimitConfig> = {},
-): Promise<{ allowed: boolean; remaining: number; resetAt: number }> {
-  const opts = { ...DEFAULT_CONFIG, ...config };
-  const key = `${opts.keyPrefix}:${identifier}`;
-  const now = Date.now();
-  const windowStart = now - opts.windowMs;
-
-  try {
-    const pipeline = redis.pipeline();
-    pipeline.zremrangebyscore(key, 0, windowStart);
-    pipeline.zadd(key, now, `${now}-${Math.random()}`);
-    pipeline.zcard(key);
-    pipeline.pexpire(key, opts.windowMs);
-    const results = await pipeline.exec();
-
-    const count = (results?.[2]?.[1] as number) ?? 0;
-    const allowed = count <= opts.maxRequests;
-    const remaining = Math.max(0, opts.maxRequests - count);
-    const resetAt = now + opts.windowMs;
-
-    return { allowed, remaining, resetAt };
-  } catch {
-    // If Redis is down, allow the request (fail open)
-    return { allowed: true, remaining: opts.maxRequests, resetAt: now + opts.windowMs };
-  }
-}
-
+/**
+ * Rate limit an API request. Returns a 429 response if limit exceeded,
+ * or null if the request is allowed.
+ *
+ * Usage:
+ *   const rateLimited = await withRateLimit(request, { maxRequests: 20, windowMs: 60_000 });
+ *   if (rateLimited) return rateLimited;
+ */
 export async function withRateLimit(
-  request: Request,
-  config: { windowMs?: number; maxRequests?: number } = {},
+  request: NextRequest,
+  { maxRequests = 60, windowMs = 60_000 }: { maxRequests?: number; windowMs?: number } = {},
 ): Promise<NextResponse | null> {
-  const headers = request.headers;
   const ip =
-    headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    headers.get('x-real-ip') ||
-    'unknown';
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    '127.0.0.1';
 
-  const maxRequests = config.maxRequests ?? 60;
-  const result = await checkRateLimit(ip, {
-    windowMs: config.windowMs ?? 60_000,
-    maxRequests,
-    keyPrefix: 'rl:api',
-  });
+  const now = Date.now();
+  const record = ipRequestMap.get(ip);
 
-  if (!result.allowed) {
+  if (!record || now > record.resetTime) {
+    ipRequestMap.set(ip, { count: 1, resetTime: now + windowMs });
+    return null;
+  }
+
+  record.count++;
+
+  if (record.count > maxRequests) {
     return NextResponse.json(
-      { error: 'Too Many Requests', message: 'Rate limit exceeded' },
+      { error: 'Too many requests. Please try again later.' },
       {
         status: 429,
         headers: {
-          'Retry-After': String(Math.ceil((result.resetAt - Date.now()) / 1000)),
+          'Retry-After': String(Math.ceil(windowMs / 1000)),
           'X-RateLimit-Limit': String(maxRequests),
           'X-RateLimit-Remaining': '0',
         },
