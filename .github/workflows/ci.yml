@@ -57,3 +57,5 @@ jobs:
           GITHUB_CLIENT_ID: fake-client-id
           GITHUB_CLIENT_SECRET: fake-client-secret
           GITHUB_PERSONAL_ACCESS_TOKEN: fake-token
+          NOVU_SECRET_KEY: fake-novu-secret-key
+          NEXT_PUBLIC_NOVU_APP_ID: fake-novu-app-id
