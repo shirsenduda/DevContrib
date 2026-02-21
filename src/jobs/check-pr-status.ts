@@ -42,7 +42,7 @@ export async function processCheckPrStatus(job: Job) {
 
         try {
           await getNovu().trigger({
-            workflowId: 'pr-merged',
+            workflowId: 'dc-pr-merged',
             to: contribution.userId,
             transactionId: `pr-merged-${contribution.id}`,
             payload: {
@@ -68,7 +68,7 @@ export async function processCheckPrStatus(job: Job) {
 
         try {
           await getNovu().trigger({
-            workflowId: 'pr-closed',
+            workflowId: 'dc-pr-closed',
             to: contribution.userId,
             transactionId: `pr-closed-${contribution.id}`,
             payload: {

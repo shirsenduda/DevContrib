@@ -32,7 +32,7 @@ export async function processPrHealthCheck(job: Job) {
   for (const c of fiveDayCandidates) {
     try {
       await getNovu().trigger({
-        workflowId: 'pr-waiting-5d',
+        workflowId: 'dc-pr-waiting-5d',
         to: c.userId,
         transactionId: `pr-health-5d-${c.id}`,
         payload: {
@@ -76,7 +76,7 @@ export async function processPrHealthCheck(job: Job) {
   for (const c of tenDayCandidates) {
     try {
       await getNovu().trigger({
-        workflowId: 'pr-waiting-10d',
+        workflowId: 'dc-pr-waiting-10d',
         to: c.userId,
         transactionId: `pr-health-10d-${c.id}`,
         payload: {

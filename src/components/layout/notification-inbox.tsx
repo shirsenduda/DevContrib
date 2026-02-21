@@ -3,20 +3,33 @@
 import { Inbox } from '@novu/nextjs';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export function NotificationInbox() {
   const { data: session } = useSession();
   const router = useRouter();
+  const [subscriberHash, setSubscriberHash] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    fetch('/api/novu/subscriber-hash')
+      .then((res) => res.json())
+      .then((data) => setSubscriberHash(data.subscriberHash))
+      .catch(() => {});
+  }, [session?.user?.id]);
 
   if (!session?.user?.id) return null;
 
   const appId = process.env.NEXT_PUBLIC_NOVU_APP_ID;
   if (!appId) return null;
 
+  if (!subscriberHash) return null;
+
   return (
     <Inbox
       applicationIdentifier={appId}
-      subscriber={session.user.id}
+      subscriberId={session.user.id}
+      subscriberHash={subscriberHash}
       routerPush={(path: string) => router.push(path)}
       placement="bottom-end"
       placementOffset={6}

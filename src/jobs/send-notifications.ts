@@ -38,7 +38,7 @@ async function processContributionReminders(job: Job) {
   for (const c of candidates) {
     try {
       await getNovu().trigger({
-        workflowId: 'contribution-reminder',
+        workflowId: 'dc-contribution-reminder',
         to: c.userId,
         transactionId: `reminder-${c.id}`,
         payload: {
