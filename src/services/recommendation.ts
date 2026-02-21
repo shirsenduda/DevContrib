@@ -6,8 +6,8 @@ import type { SkillLevel, Difficulty } from '@prisma/client';
 const CACHE_TTL = 3600; // 1 hour
 
 const DIFFICULTY_MAP: Record<SkillLevel, Difficulty[]> = {
-  BEGINNER: ['EASY'],
-  INTERMEDIATE: ['EASY', 'MEDIUM'],
+  BEGINNER: ['EASY', 'MEDIUM'],
+  INTERMEDIATE: ['EASY', 'MEDIUM', 'HARD'],
   ADVANCED: ['EASY', 'MEDIUM', 'HARD'],
 };
 
@@ -124,8 +124,10 @@ export async function getRecommendations(
 
   const results = scored.slice(0, count);
 
-  // Cache results
-  await cacheSet(cacheKey, results, CACHE_TTL);
+  // Only cache non-empty results — empty means issues haven't been synced yet
+  if (results.length > 0) {
+    await cacheSet(cacheKey, results, CACHE_TTL);
+  }
 
   return results;
 }
