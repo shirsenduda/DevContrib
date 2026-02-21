@@ -2,8 +2,6 @@ import { NextRequest } from 'next/server';
 import prisma from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
 import { createApiResponse, parsePaginationParams, handleApiError } from '@/lib/api-helpers';
-import type { Prisma } from '@prisma/client';
-
 export async function GET(request: NextRequest) {
   try {
     await requireAdmin();
@@ -12,12 +10,12 @@ export async function GET(request: NextRequest) {
     const { page, pageSize, skip } = parsePaginationParams(searchParams);
     const search = searchParams.get('search');
 
-    const where: Prisma.UserWhereInput = search
+    const where = search
       ? {
           OR: [
-            { username: { contains: search, mode: 'insensitive' } },
-            { name: { contains: search, mode: 'insensitive' } },
-            { email: { contains: search, mode: 'insensitive' } },
+            { username: { contains: search, mode: 'insensitive' as const } },
+            { name: { contains: search, mode: 'insensitive' as const } },
+            { email: { contains: search, mode: 'insensitive' as const } },
           ],
         }
       : {};

@@ -11,8 +11,6 @@ import {
 } from '@/lib/api-helpers';
 import { getRepository } from '@/lib/github';
 import { calculateRepoHealthScore } from '@/services/scoring';
-import type { Prisma } from '@prisma/client';
-
 const addRepoSchema = z.object({
   url: z
     .string()
@@ -43,13 +41,13 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get('sortBy') || 'healthScore';
     const sortOrder = searchParams.get('sortOrder') || 'desc';
 
-    const where: Prisma.RepositoryWhereInput = {
+    const where = {
       ...(search && { fullName: { contains: search, mode: 'insensitive' as const } }),
       ...(isActive !== null && isActive !== undefined && isActive !== '' && { isActive: isActive === 'true' }),
       ...(language && { language }),
     };
 
-    const orderBy: Prisma.RepositoryOrderByWithRelationInput = {
+    const orderBy = {
       [sortBy]: sortOrder,
     };
 

@@ -7,7 +7,7 @@ import {
   handleApiError,
 } from '@/lib/api-helpers';
 import { issueFilterSchema } from '@/types/schemas';
-import type { Prisma } from '@prisma/client';
+import type { Difficulty } from '@/types';
 
 export async function GET(request: NextRequest) {
   try {
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     if (cached) return createApiResponse(cached.issues, { total: cached.total, page, pageSize });
 
     // Build query
-    const repoFilter: Prisma.RepositoryWhereInput = {
+    const repoFilter = {
       ...(language && { language }),
       ...(owner && { owner: { contains: owner, mode: 'insensitive' as const } }),
       ...(minStars && { stars: { gte: minStars } }),
@@ -42,19 +42,19 @@ export async function GET(request: NextRequest) {
 
     const hasRepoFilter = language || owner || minStars;
 
-    const where: Prisma.IssueWhereInput = {
+    const where = {
       isOpen: true,
       isAssigned: false,
-      ...(difficulty && { difficulty: difficulty as Prisma.EnumDifficultyFilter }),
+      ...(difficulty && { difficulty: difficulty as Difficulty }),
       ...(hasRepoFilter && { repository: repoFilter }),
     };
 
-    const orderBy: Prisma.IssueOrderByWithRelationInput =
+    const orderBy =
       sortBy === 'stars'
-        ? { repository: { stars: 'desc' } }
+        ? { repository: { stars: 'desc' as const } }
         : sortBy === 'newest'
-          ? { createdAtGithub: 'desc' }
-          : { mergeProbability: 'desc' };
+          ? { createdAtGithub: 'desc' as const }
+          : { mergeProbability: 'desc' as const };
 
     const [issues, total] = await Promise.all([
       prisma.issue.findMany({

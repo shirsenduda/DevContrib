@@ -7,8 +7,6 @@ import {
   parsePaginationParams,
   handleApiError,
 } from '@/lib/api-helpers';
-import type { Prisma } from '@prisma/client';
-
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = request.nextUrl;
@@ -22,7 +20,7 @@ export async function GET(request: NextRequest) {
     if (cached) return createApiResponse(cached);
 
     // Build query
-    const where: Prisma.RepositoryWhereInput = {
+    const where = {
       isActive: true,
       ...(language && { language }),
       ...(minStars > 0 && { stars: { gte: minStars } }),
