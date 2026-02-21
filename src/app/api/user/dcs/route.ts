@@ -32,15 +32,14 @@ export async function GET() {
     });
 
     // Transform to scoring input (filter out contributions with missing issue/repository data)
-    const inputs: ContributionInput[] = contributions
-      .filter((c: (typeof contributions)[number]) => c.issue?.repository)
-      .map((c) => ({
-        status: c.status,
-        difficulty: c.issue.difficulty,
-        repoStars: c.issue.repository.stars,
-        startedAt: c.startedAt,
-        mergedAt: c.mergedAt,
-      }));
+    const valid = contributions.filter((c) => c.issue?.repository);
+    const inputs: ContributionInput[] = valid.map((c) => ({
+      status: c.status,
+      difficulty: c.issue.difficulty,
+      repoStars: c.issue.repository.stars,
+      startedAt: c.startedAt,
+      mergedAt: c.mergedAt,
+    }));
 
     const result = calculateDCS(inputs);
 
