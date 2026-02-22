@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Sparkles, RefreshCw, AlertCircle, ArrowRight, Compass, GitPullRequest, CheckCircle2, Flame, Trophy } from 'lucide-react';
+import { Sparkles, RefreshCw, AlertCircle, ArrowRight, Compass, GitFork, GitMerge, TrendingUp, Award } from 'lucide-react';
 import { IssueCard } from '@/components/features/issue-card';
 import { useRecommendation } from '@/hooks/use-issues';
 import { useContributions, useStartContribution } from '@/hooks/use-contributions';
@@ -98,8 +98,8 @@ export default function DashboardPage() {
               <p className="text-2xl font-semibold tracking-tight">{activeContributions.length}</p>
               <p className="text-[11px] text-muted-foreground">Active</p>
             </div>
-            <div className="rounded-lg bg-blue/10 p-2 transition-colors group-hover:bg-blue/20">
-              <GitPullRequest className="h-4 w-4 text-blue" />
+            <div className="rounded-lg bg-blue/10 p-2.5 transition-colors group-hover:bg-blue/20">
+              <GitFork className="h-5 w-5 text-blue" />
             </div>
           </div>
         </Link>
@@ -109,19 +109,19 @@ export default function DashboardPage() {
               <p className="text-2xl font-semibold tracking-tight">{stats?.mergedPRs ?? 0}</p>
               <p className="text-[11px] text-muted-foreground">Merged</p>
             </div>
-            <div className="rounded-lg bg-success/10 p-2 transition-colors group-hover:bg-success/20">
-              <CheckCircle2 className="h-4 w-4 text-success" />
+            <div className="rounded-lg bg-success/10 p-2.5 transition-colors group-hover:bg-success/20">
+              <GitMerge className="h-5 w-5 text-success" />
             </div>
           </div>
         </Link>
         <Link href="/profile" className="group rounded-xl border border-border bg-card p-4 transition-all hover:border-foreground/15">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-2xl font-semibold tracking-tight">{stats?.currentStreak ?? 0}</p>
-              <p className="text-[11px] text-muted-foreground">Week Streak</p>
+              <p className="text-2xl font-semibold tracking-tight">{stats?.successRate ?? 0}%</p>
+              <p className="text-[11px] text-muted-foreground">Success Rate</p>
             </div>
-            <div className="rounded-lg bg-orange-500/10 p-2 transition-colors group-hover:bg-orange-500/20">
-              <Flame className="h-4 w-4 text-orange-500" />
+            <div className="rounded-lg bg-orange-500/10 p-2.5 transition-colors group-hover:bg-orange-500/20">
+              <TrendingUp className="h-5 w-5 text-orange-500" />
             </div>
           </div>
         </Link>
@@ -131,8 +131,8 @@ export default function DashboardPage() {
               <p className="text-2xl font-semibold tracking-tight">{dcs?.score ?? 0}</p>
               <p className="text-[11px] text-muted-foreground">DCS Score</p>
             </div>
-            <div className="rounded-lg bg-violet-500/10 p-2 transition-colors group-hover:bg-violet-500/20">
-              <Trophy className="h-4 w-4 text-violet-500" />
+            <div className="rounded-lg bg-violet-500/10 p-2.5 transition-colors group-hover:bg-violet-500/20">
+              <Award className="h-5 w-5 text-violet-500" />
             </div>
           </div>
         </Link>
