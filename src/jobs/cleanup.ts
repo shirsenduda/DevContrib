@@ -1,6 +1,6 @@
 import type { Job } from 'bullmq';
 import prisma from '@/lib/db';
-import { cacheDeletePattern } from '@/lib/redis';
+import { invalidateCache } from '@/lib/redis';
 import { logger } from '@/lib/logger';
 
 export async function processCleanup(job: Job) {
@@ -58,9 +58,7 @@ export async function processCleanup(job: Job) {
   logger.info({ count: deletedLogs.count }, 'Purged old scrape logs');
 
   // 5. Clear stale cache
-  await cacheDeletePattern('repos:*');
-  await cacheDeletePattern('issues:*');
-  await cacheDeletePattern('stats:*');
+  await invalidateCache('repos', 'issues', 'stats');
 
   await job.updateProgress(100);
 

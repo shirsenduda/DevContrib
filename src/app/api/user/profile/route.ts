@@ -8,7 +8,7 @@ import {
   validateBody,
 } from '@/lib/api-helpers';
 import { userProfileSchema } from '@/types/schemas';
-import { cacheDeletePattern } from '@/lib/redis';
+import { cacheDelete } from '@/lib/redis';
 
 export async function GET() {
   try {
@@ -63,7 +63,7 @@ export async function PATCH(request: NextRequest) {
     });
 
     // Invalidate recommendation cache when profile changes
-    await cacheDeletePattern(`recommendations:${user.id}`);
+    await cacheDelete(`recommendations:${user.id}`);
 
     return createApiResponse(profile);
   } catch (error) {

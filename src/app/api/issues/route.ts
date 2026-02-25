@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
       prisma.issue.count({ where }),
     ]);
 
-    await cacheSet(cacheKey, { issues, total }, 300);
+    await cacheSet(cacheKey, { issues, total }, 1800);
 
     return createApiResponse(issues, { total, page, pageSize });
   } catch (error) {

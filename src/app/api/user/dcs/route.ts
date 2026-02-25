@@ -43,7 +43,7 @@ export async function GET() {
 
     const result = calculateDCS(inputs);
 
-    await cacheSet(cacheKey, result, 600);
+    await cacheSet(cacheKey, result, 1800);
 
     return createApiResponse(result);
   } catch (error) {

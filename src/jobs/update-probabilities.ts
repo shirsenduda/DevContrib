@@ -1,7 +1,7 @@
 import type { Job } from 'bullmq';
 import prisma from '@/lib/db';
 import { calculateMergeProbability } from '@/services/scoring';
-import { cacheDeletePattern } from '@/lib/redis';
+import { invalidateCache } from '@/lib/redis';
 import { logger } from '@/lib/logger';
 
 const BATCH_SIZE = 100;
@@ -49,7 +49,7 @@ export async function processUpdateProbabilities(job: Job) {
   }
 
   // Invalidate recommendation caches
-  await cacheDeletePattern('recommendations:*');
+  await invalidateCache('recommendations');
 
   logger.info({ jobId: job.id, updated }, 'Probability update completed');
   return { updated };

@@ -70,7 +70,7 @@ export async function GET() {
       preferredLanguages: profile?.preferredLanguages || [],
     };
 
-    await cacheSet(cacheKey, stats, 600);
+    await cacheSet(cacheKey, stats, 1800);
 
     return createApiResponse(stats);
   } catch (error) {

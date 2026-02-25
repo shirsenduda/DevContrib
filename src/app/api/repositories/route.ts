@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     const result = { data: repositories, meta: { total, page, pageSize } };
-    await cacheSet(cacheKey, result, 300);
+    await cacheSet(cacheKey, result, 1800);
 
     return createApiResponse(repositories, { total, page, pageSize });
   } catch (error) {

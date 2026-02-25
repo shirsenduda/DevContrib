@@ -21,6 +21,7 @@
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "db:reset": "prisma migrate reset",
+    "scrape": "tsx scripts/scrape.ts",
     "worker": "tsx watch worker.ts",
     "worker:prod": "tsx worker.ts",
     "prepare": "husky"

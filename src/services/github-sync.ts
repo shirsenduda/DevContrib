@@ -5,7 +5,7 @@ import {
   classifyIssueDifficulty,
   calculateMergeProbability,
 } from './scoring';
-import { cacheDeletePattern } from '@/lib/redis';
+import { invalidateCache } from '@/lib/redis';
 import { logger } from '@/lib/logger';
 import type { SyncResult } from '@/types';
 
@@ -332,10 +332,7 @@ export async function fullSync(): Promise<SyncResult> {
   }
 
   // Phase 3: Invalidate all cached API responses so explore/dashboard serve fresh data
-  await cacheDeletePattern('issues:*');
-  await cacheDeletePattern('recommendations:*');
-  await cacheDeletePattern('repos:*');
-  await cacheDeletePattern('stats:*');
+  await invalidateCache('issues', 'recommendations', 'repos', 'stats');
   logger.info('Cleared all cached API responses after sync');
 
   logger.info(
