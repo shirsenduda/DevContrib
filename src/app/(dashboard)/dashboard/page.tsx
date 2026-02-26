@@ -92,50 +92,88 @@ export default function DashboardPage() {
         transition={{ duration: 0.3, delay: 0.05 }}
         className="mb-10 grid grid-cols-2 gap-3 sm:grid-cols-4"
       >
-        <Link href="/contributions" className="group rounded-xl border border-border bg-card p-4 transition-all hover:border-foreground/15">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-2xl font-semibold tracking-tight">{activeContributions.length}</p>
-              <p className="text-[11px] text-muted-foreground">Active</p>
-            </div>
-            <div className="rounded-lg bg-blue/10 p-2.5 transition-colors group-hover:bg-blue/20">
-              <GitFork className="h-5 w-5 text-blue" />
-            </div>
-          </div>
-        </Link>
-        <Link href="/contributions?tab=PR_MERGED" className="group rounded-xl border border-border bg-card p-4 transition-all hover:border-foreground/15">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-2xl font-semibold tracking-tight">{stats?.mergedPRs ?? 0}</p>
-              <p className="text-[11px] text-muted-foreground">Merged</p>
-            </div>
-            <div className="rounded-lg bg-success/10 p-2.5 transition-colors group-hover:bg-success/20">
-              <GitMerge className="h-5 w-5 text-success" />
-            </div>
-          </div>
-        </Link>
-        <Link href="/profile" className="group rounded-xl border border-border bg-card p-4 transition-all hover:border-foreground/15">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-2xl font-semibold tracking-tight">{stats?.successRate ?? 0}%</p>
-              <p className="text-[11px] text-muted-foreground">Success Rate</p>
-            </div>
-            <div className="rounded-lg bg-orange-500/10 p-2.5 transition-colors group-hover:bg-orange-500/20">
-              <TrendingUp className="h-5 w-5 text-orange-500" />
-            </div>
-          </div>
-        </Link>
-        <Link href="/profile" className="group rounded-xl border border-border bg-card p-4 transition-all hover:border-foreground/15">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-2xl font-semibold tracking-tight">{dcs?.score ?? 0}</p>
-              <p className="text-[11px] text-muted-foreground">DCS Score</p>
-            </div>
-            <div className="rounded-lg bg-violet-500/10 p-2.5 transition-colors group-hover:bg-violet-500/20">
-              <Award className="h-5 w-5 text-violet-500" />
-            </div>
-          </div>
-        </Link>
+        {[
+          {
+            href: '/contributions',
+            value: activeContributions.length,
+            label: 'Active',
+            icon: GitFork,
+            color: '#0070f3',
+          },
+          {
+            href: '/contributions?tab=PR_MERGED',
+            value: stats?.mergedPRs ?? 0,
+            label: 'Merged',
+            icon: GitMerge,
+            color: '#22c55e',
+          },
+          {
+            href: '/profile',
+            value: `${stats?.successRate ?? 0}%`,
+            label: 'Success Rate',
+            icon: TrendingUp,
+            color: '#f97316',
+          },
+          {
+            href: '/profile',
+            value: dcs?.score ?? 0,
+            label: 'DCS Score',
+            icon: Award,
+            color: '#7c3aed',
+          },
+        ].map((item, i) => {
+          const Icon = item.icon;
+          return (
+            <motion.div
+              key={item.label}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, delay: 0.05 + i * 0.06, ease: [0.23, 1, 0.32, 1] }}
+            >
+              <Link
+                href={item.href}
+                className="group relative block overflow-hidden rounded-xl border border-border bg-card p-5 transition-all duration-200 hover:border-transparent hover:shadow-lg"
+                style={{ '--stat-color': item.color } as React.CSSProperties}
+              >
+                {/* Hover glow */}
+                <span
+                  className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                  style={{
+                    background: `radial-gradient(ellipse at 70% 0%, ${item.color}15 0%, transparent 70%)`,
+                  }}
+                />
+
+                {/* Top row: icon */}
+                <div className="mb-4 flex items-center justify-between">
+                  <Icon
+                    className="h-4 w-4 text-muted-foreground transition-colors duration-200 group-hover:text-[var(--stat-color)]"
+                    strokeWidth={1.8}
+                  />
+                  <span
+                    className="h-1.5 w-1.5 rounded-full opacity-60"
+                    style={{ background: item.color }}
+                  />
+                </div>
+
+                {/* Value */}
+                <p className="text-[1.75rem] font-semibold leading-none tracking-tight text-foreground">
+                  {item.value}
+                </p>
+
+                {/* Label */}
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  {item.label}
+                </p>
+
+                {/* Bottom accent line */}
+                <span
+                  className="absolute bottom-0 left-0 h-[2px] w-0 transition-all duration-300 group-hover:w-full"
+                  style={{ background: `linear-gradient(to right, ${item.color}, transparent)` }}
+                />
+              </Link>
+            </motion.div>
+          );
+        })}
       </motion.div>
 
       {/* Featured Recommendation */}
