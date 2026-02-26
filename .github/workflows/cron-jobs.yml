@@ -1,0 +1,96 @@
+name: Scheduled Cron Jobs
+
+on:
+  schedule:
+    # Scrape repos & issues every 6 hours
+    - cron: '0 */6 * * *'
+    # PR status check every hour is too frequent for GitHub Actions free tier.
+    # We check PR status + update probabilities + send notifications at 2 AM, 9 AM, 10 AM UTC.
+    - cron: '0 2 * * *'
+    - cron: '0 9 * * *'
+    - cron: '0 10 * * *'
+    # Weekly cleanup on Sunday at 3 AM UTC
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+    inputs:
+      job:
+        description: 'Which job to run'
+        required: true
+        type: choice
+        options:
+          - scrape
+          - check-pr-status
+          - update-probabilities
+          - cleanup
+          - notifications
+          - all
+
+env:
+  APP_URL: ${{ secrets.APP_URL }}
+  CRON_SECRET: ${{ secrets.CRON_SECRET }}
+
+jobs:
+  scrape:
+    if: >
+      github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'scrape' || github.event.inputs.job == 'all') ||
+      github.event_name == 'schedule' && github.event.schedule == '0 */6 * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Trigger scrape
+        run: |
+          curl -f -X POST "$APP_URL/api/cron/scrape" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json"
+
+  check-pr-status:
+    if: >
+      github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'check-pr-status' || github.event.inputs.job == 'all') ||
+      github.event_name == 'schedule' && github.event.schedule == '0 */6 * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check PR status
+        run: |
+          curl -f -X POST "$APP_URL/api/cron/check-pr-status" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json"
+
+  update-probabilities:
+    if: >
+      github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'update-probabilities' || github.event.inputs.job == 'all') ||
+      github.event_name == 'schedule' && github.event.schedule == '0 2 * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Update merge probabilities
+        run: |
+          curl -f -X POST "$APP_URL/api/cron/update-probabilities" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json"
+
+  cleanup:
+    if: >
+      github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'cleanup' || github.event.inputs.job == 'all') ||
+      github.event_name == 'schedule' && github.event.schedule == '0 3 * * 0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Cleanup stale data
+        run: |
+          curl -f -X POST "$APP_URL/api/cron/cleanup" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json"
+
+  notifications:
+    if: >
+      github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'notifications' || github.event.inputs.job == 'all') ||
+      github.event_name == 'schedule' && (github.event.schedule == '0 9 * * *' || github.event.schedule == '0 10 * * *')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Send notifications
+        run: |
+          curl -f -X POST "$APP_URL/api/cron/notifications" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json"

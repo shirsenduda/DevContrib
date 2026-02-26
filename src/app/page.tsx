@@ -42,6 +42,22 @@ function StatCounter({ value, suffix = '' }: { value: number; suffix?: string })
   return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
 }
 
+/* ─── Hook to fetch real platform stats ─── */
+function usePlatformStats() {
+  const [stats, setStats] = useState({ repos: 0, issues: 0, mergeRate: 0 });
+
+  useEffect(() => {
+    fetch('/api/stats')
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.data) setStats(json.data);
+      })
+      .catch(() => {});
+  }, []);
+
+  return stats;
+}
+
 /* ─── Steps data ─── */
 const steps = [
   {
@@ -62,6 +78,7 @@ const steps = [
 ];
 
 export default function LandingPage() {
+  const platformStats = usePlatformStats();
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -297,9 +314,9 @@ export default function LandingPage() {
           </motion.div>
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
             {[
-              { value: 500, suffix: '+', label: 'Curated Repos' },
-              { value: 2000, suffix: '+', label: 'Active Issues' },
-              { value: 85, suffix: '%', label: 'Merge Rate' },
+              { value: platformStats.repos, suffix: '+', label: 'Curated Repos' },
+              { value: platformStats.issues, suffix: '+', label: 'Active Issues' },
+              { value: platformStats.mergeRate, suffix: '%', label: 'Merge Rate' },
               { value: 5, suffix: ' min', label: 'To First Match', prefix: '< ' },
             ].map((stat, index) => (
               <motion.div
