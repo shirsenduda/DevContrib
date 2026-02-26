@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, after } from 'next/server';
 import { createApiResponse, createErrorResponse } from '@/lib/api-helpers';
 import prisma from '@/lib/db';
 import { fullSync } from '@/services/github-sync';
@@ -12,20 +12,12 @@ function verifyCronSecret(request: NextRequest): boolean {
   return secret === expected;
 }
 
-export async function POST(request: NextRequest) {
-  if (!verifyCronSecret(request)) {
-    return createErrorResponse('Unauthorized', 401);
-  }
-
-  const scrapeLog = await prisma.scrapeLog.create({
-    data: { status: 'RUNNING' },
-  });
-
+async function runScrape(scrapeLogId: string) {
   try {
     const result = await fullSync();
 
     await prisma.scrapeLog.update({
-      where: { id: scrapeLog.id },
+      where: { id: scrapeLogId },
       data: {
         status: 'COMPLETED',
         completedAt: new Date(),
@@ -88,33 +80,34 @@ export async function POST(request: NextRequest) {
       logger.error({ error: e }, 'Failed to process recommendation notifications');
     }
 
-    logger.info(
-      {
-        reposScraped: result.reposProcessed,
-        issuesFound: result.issuesFound,
-        issuesUpdated: result.issuesUpdated,
-        errors: result.errors.length,
-      },
-      'Cron scrape completed',
-    );
-
-    return createApiResponse({
-      message: 'Scrape completed',
-      reposScraped: result.reposProcessed,
-      issuesFound: result.issuesFound,
-      issuesUpdated: result.issuesUpdated,
-    });
+    logger.info({ reposScraped: result.reposProcessed, issuesFound: result.issuesFound, issuesUpdated: result.issuesUpdated }, 'Cron scrape completed');
   } catch (error) {
     await prisma.scrapeLog.update({
-      where: { id: scrapeLog.id },
+      where: { id: scrapeLogId },
       data: {
         status: 'FAILED',
         completedAt: new Date(),
         errors: [String(error)],
       },
     });
-
     logger.error({ error }, 'Cron scrape failed');
-    return createErrorResponse('Scrape failed', 500);
   }
+}
+
+export async function POST(request: NextRequest) {
+  if (!verifyCronSecret(request)) {
+    return createErrorResponse('Unauthorized', 401);
+  }
+
+  const scrapeLog = await prisma.scrapeLog.create({
+    data: { status: 'RUNNING' },
+  });
+
+  // Run in background — respond immediately, work continues after response
+  after(() => runScrape(scrapeLog.id));
+
+  return createApiResponse({
+    scrapeLogId: scrapeLog.id,
+    message: 'Scrape started',
+  });
 }
