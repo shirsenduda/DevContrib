@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { History, Compass, Lightbulb, RefreshCw } from 'lucide-react';
 import { ContributionCard } from '@/components/features/contribution-card';
@@ -24,6 +24,7 @@ export default function ContributionsPage() {
   const [activeTab, setActiveTab] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
+  const [secondsSinceSync, setSecondsSinceSync] = useState(0);
   const [isAutoSyncing, setIsAutoSyncing] = useState(false);
   const syncingRef = useRef(false);
 
@@ -32,10 +33,20 @@ export default function ContributionsPage() {
   const updateContribution = useUpdateContribution();
   const syncContribution = useSyncContribution();
 
-  const contributions = data?.data || [];
-  const allContributions = allData?.data || [];
+  const contributions = data?.data ?? [];
+  const allContributions = useMemo(() => allData?.data ?? [], [allData]);
 
   const hasOpenPRs = allContributions.some((c: { status: string }) => c.status === 'PR_OPENED');
+
+  /* ─── Tick counter for "synced Xs ago" label (computed purely inside the callback) ─── */
+  useEffect(() => {
+    if (!lastSyncedAt) return;
+    const startAt = lastSyncedAt.getTime();
+    const tick = setInterval(() => {
+      setSecondsSinceSync(Math.floor((Date.now() - startAt) / 1000));
+    }, 1000);
+    return () => clearInterval(tick);
+  }, [lastSyncedAt]);
 
   /* ─── Auto-sync open PRs every 60 seconds ─── */
   const runAutoSync = useCallback(async () => {
@@ -127,7 +138,7 @@ export default function ContributionsPage() {
             ) : lastSyncedAt ? (
               <>
                 <RefreshCw className="h-3 w-3" />
-                <span>Synced {Math.floor((Date.now() - lastSyncedAt.getTime()) / 1000)}s ago</span>
+                <span>Synced {secondsSinceSync}s ago</span>
               </>
             ) : (
               <>
