@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/logo.png" alt="DevContrib Logo" width="64" height="64" />
+<img src="https://raw.githubusercontent.com/shirsenduda/DevContrib/main/public/logo.svg" alt="DevContrib Logo" width="64" height="64" />
 
 # DevContrib
 
