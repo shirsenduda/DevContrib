@@ -19,9 +19,19 @@ export function Footer({ href = '/dashboard' }: { href?: string }) {
             </a>
           </p>
         </div>
-        <p className="text-xs text-muted-foreground">
-          Making open source contributions easier.
-        </p>
+        <div className="flex items-center gap-4">
+          <a
+            href="https://github.com/shirsenduda/DevContrib/discussions"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Feedback
+          </a>
+          <p className="text-xs text-muted-foreground">
+            Making open source contributions easier.
+          </p>
+        </div>
       </div>
     </footer>
   );
