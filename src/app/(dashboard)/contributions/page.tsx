@@ -1,14 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { History, Compass, Lightbulb } from 'lucide-react';
+import { History, Compass, Lightbulb, RefreshCw } from 'lucide-react';
 import { ContributionCard } from '@/components/features/contribution-card';
 import { IssueCard } from '@/components/features/issue-card';
 import { useContributions, useUpdateContribution, useSyncContribution } from '@/hooks/use-contributions';
 import { useRecommendation } from '@/hooks/use-issues';
 import type { ContributionStatus } from '@/types';
 import { cn } from '@/lib/utils';
+
+const AUTO_SYNC_INTERVAL_MS = 60_000; // 60 seconds
 
 const TABS = [
   { value: '', label: 'All' },
@@ -21,6 +23,10 @@ const TABS = [
 export default function ContributionsPage() {
   const [activeTab, setActiveTab] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
+  const [isAutoSyncing, setIsAutoSyncing] = useState(false);
+  const syncingRef = useRef(false);
+
   const { data, isLoading } = useContributions(activeTab || undefined);
   const { data: allData } = useContributions();
   const updateContribution = useUpdateContribution();
@@ -30,6 +36,33 @@ export default function ContributionsPage() {
   const allContributions = allData?.data || [];
 
   const hasOpenPRs = allContributions.some((c: { status: string }) => c.status === 'PR_OPENED');
+
+  /* ─── Auto-sync open PRs every 60 seconds ─── */
+  const runAutoSync = useCallback(async () => {
+    if (syncingRef.current) return;
+    const openPRs = allContributions.filter((c: { status: string; id: string }) => c.status === 'PR_OPENED');
+    if (openPRs.length === 0) return;
+
+    syncingRef.current = true;
+    setIsAutoSyncing(true);
+
+    for (const c of openPRs) {
+      await new Promise<void>((resolve) => {
+        syncContribution.mutate(c.id, { onSettled: () => resolve() });
+      });
+    }
+
+    syncingRef.current = false;
+    setIsAutoSyncing(false);
+    setLastSyncedAt(new Date());
+  }, [allContributions, syncContribution]);
+
+  useEffect(() => {
+    if (!hasOpenPRs) return;
+    const id = setInterval(runAutoSync, AUTO_SYNC_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [hasOpenPRs, runAutoSync]);
+
   const { data: recommendations } = useRecommendation(3);
 
   const counts: Record<string, number> = { '': allContributions.length };
@@ -79,9 +112,31 @@ export default function ContributionsPage() {
   return (
     <div className="mx-auto max-w-4xl px-6 py-10">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">Contributions</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Track your open source contribution journey</p>
+      <div className="mb-8 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Contributions</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Track your open source contribution journey</p>
+        </div>
+        {hasOpenPRs && (
+          <div className="flex shrink-0 items-center gap-1.5 text-[11px] text-muted-foreground">
+            {isAutoSyncing ? (
+              <>
+                <RefreshCw className="h-3 w-3 animate-spin" />
+                <span>Syncing…</span>
+              </>
+            ) : lastSyncedAt ? (
+              <>
+                <RefreshCw className="h-3 w-3" />
+                <span>Synced {Math.floor((Date.now() - lastSyncedAt.getTime()) / 1000)}s ago</span>
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-3 w-3" />
+                <span>Auto-syncing every 60s</span>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Tabs */}
