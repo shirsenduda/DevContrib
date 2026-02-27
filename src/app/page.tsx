@@ -116,6 +116,14 @@ export default function LandingPage() {
             <a href="#stats" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Stats</a>
           </div>
           <div className="flex items-center gap-3">
+            <a
+              href="https://github.com/shirsenduda/DevContrib/discussions"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground sm:block"
+            >
+              Feedback
+            </a>
             <Link
               href="/login"
               className="text-sm text-muted-foreground transition-colors hover:text-foreground"
