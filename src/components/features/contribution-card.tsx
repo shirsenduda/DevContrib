@@ -12,9 +12,88 @@ import {
   X,
   RefreshCw,
   Hourglass,
+  Check,
 } from 'lucide-react';
 import { cn, formatRelativeTime } from '@/lib/utils';
 import type { ContributionStatus } from '@/types';
+
+/* ─── PR Progress Pipeline ─── */
+type PipelineStep = { label: string; key: ContributionStatus[] };
+
+const PIPELINE_STEPS: PipelineStep[] = [
+  { label: 'Started', key: ['STARTED', 'PR_OPENED', 'PR_MERGED', 'PR_CLOSED', 'ABANDONED'] },
+  { label: 'PR Open', key: ['PR_OPENED', 'PR_MERGED', 'PR_CLOSED'] },
+  { label: 'Merged', key: ['PR_MERGED'] },
+];
+
+function getPipelineIndex(status: ContributionStatus): number {
+  if (status === 'PR_MERGED' || status === 'PR_CLOSED') return 2;
+  if (status === 'PR_OPENED') return 1;
+  return 0;
+}
+
+function PRPipeline({ status }: { status: ContributionStatus }) {
+  if (status === 'ABANDONED') return null;
+
+  const activeIndex = getPipelineIndex(status);
+  const isClosed = status === 'PR_CLOSED';
+
+  return (
+    <div className="mb-4 flex items-center gap-0">
+      {PIPELINE_STEPS.map((step, i) => {
+        const isCompleted = i < activeIndex || (i === 2 && status === 'PR_MERGED');
+        const isActive = i === activeIndex && !isClosed;
+        const isFailed = i === activeIndex && isClosed;
+        const isPending = i > activeIndex;
+
+        return (
+          <div key={step.label} className="flex flex-1 items-center">
+            {/* Step node */}
+            <div className="flex flex-col items-center gap-1">
+              <div
+                className={cn(
+                  'flex h-6 w-6 items-center justify-center rounded-full border text-[10px] font-semibold transition-colors',
+                  isCompleted && 'border-success bg-success/15 text-success',
+                  isActive && 'border-foreground bg-foreground text-background',
+                  isFailed && 'border-destructive bg-destructive/15 text-destructive',
+                  isPending && 'border-border bg-secondary text-muted-foreground',
+                )}
+              >
+                {isCompleted ? (
+                  <Check className="h-3 w-3" />
+                ) : isFailed ? (
+                  <XCircle className="h-3 w-3" />
+                ) : (
+                  <span>{i + 1}</span>
+                )}
+              </div>
+              <span
+                className={cn(
+                  'whitespace-nowrap text-[10px] font-medium',
+                  isCompleted && 'text-success',
+                  isActive && 'text-foreground',
+                  isFailed && 'text-destructive',
+                  isPending && 'text-muted-foreground',
+                )}
+              >
+                {i === 2 && isClosed ? 'Closed' : step.label}
+              </span>
+            </div>
+            {/* Connector line */}
+            {i < PIPELINE_STEPS.length - 1 && (
+              <div
+                className={cn(
+                  'mb-4 h-px flex-1',
+                  i < activeIndex ? 'bg-success/40' : 'bg-border',
+                )}
+              />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 const statusConfig: Record<
   ContributionStatus,
@@ -165,6 +244,9 @@ export function ContributionCard({ contribution, onUpdateStatus, onSync, isUpdat
           {config.label}
         </span>
       </div>
+
+      {/* PR Progress Pipeline */}
+      <PRPipeline status={contribution.status} />
 
       {/* Stale PR warning */}
       {staleLevel && (

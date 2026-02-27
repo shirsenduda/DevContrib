@@ -3,13 +3,14 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Sparkles, RefreshCw, AlertCircle, ArrowRight, Compass, GitFork, GitMerge, TrendingUp, Award } from 'lucide-react';
+import { Sparkles, RefreshCw, AlertCircle, ArrowRight, Compass, GitFork, GitMerge, TrendingUp, Award, GitPullRequest, Clock, ChevronRight } from 'lucide-react';
 import { IssueCard } from '@/components/features/issue-card';
 import { useRecommendation } from '@/hooks/use-issues';
-import { useContributions, useStartContribution } from '@/hooks/use-contributions';
+import { useContributions, useStartContribution, useSyncContribution } from '@/hooks/use-contributions';
 import { useUserStats, useDCS } from '@/hooks/use-profile';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
+import { cn, formatRelativeTime } from '@/lib/utils';
 
 export default function DashboardPage() {
   const { data: session } = useSession();
@@ -25,6 +26,7 @@ export default function DashboardPage() {
     refetch,
   } = useRecommendation(5);
   const startContribution = useStartContribution();
+  const syncContribution = useSyncContribution();
   const { data: contributionsData } = useContributions();
   const { data: stats } = useUserStats();
   const { data: dcs } = useDCS();
@@ -146,6 +148,111 @@ export default function DashboardPage() {
           </p>
         </Link>
       </motion.div>
+
+      {/* Active Contributions */}
+      {activeContributions.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.08 }}
+          className="mb-10"
+        >
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10">
+                <GitPullRequest className="h-3.5 w-3.5 text-amber-500" />
+              </div>
+              <h2 className="text-sm font-semibold">Active contributions</h2>
+            </div>
+            <Link
+              href="/contributions"
+              className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              View all
+              <ChevronRight className="h-3 w-3" />
+            </Link>
+          </div>
+
+          <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
+            {activeContributions.slice(0, 4).map((c: {
+              id: string;
+              status: string;
+              prUrl: string | null;
+              prNumber: number | null;
+              startedAt: string;
+              prOpenedAt: string | null;
+              issue: { title: string; number: number; repository: { fullName: string } };
+            }) => (
+              <div key={c.id} className="flex items-center gap-3 px-4 py-3">
+                {/* Status icon */}
+                <div
+                  className={cn(
+                    'flex h-7 w-7 shrink-0 items-center justify-center rounded-full',
+                    c.status === 'PR_OPENED'
+                      ? 'bg-amber-500/10 text-amber-500'
+                      : 'bg-blue/10 text-blue',
+                  )}
+                >
+                  {c.status === 'PR_OPENED' ? (
+                    <GitPullRequest className="h-3.5 w-3.5" />
+                  ) : (
+                    <Clock className="h-3.5 w-3.5" />
+                  )}
+                </div>
+
+                {/* Info */}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-xs font-medium">
+                    <span className="text-muted-foreground">{c.issue.repository.fullName}</span>
+                    {' · '}
+                    <span>#{c.issue.number}</span>
+                  </p>
+                  <p className="truncate text-[11px] text-muted-foreground">
+                    {c.issue.title}
+                  </p>
+                </div>
+
+                {/* Right side */}
+                <div className="flex shrink-0 items-center gap-2">
+                  <span
+                    className={cn(
+                      'rounded-full px-2 py-0.5 text-[10px] font-medium',
+                      c.status === 'PR_OPENED'
+                        ? 'bg-amber-500/10 text-amber-500'
+                        : 'bg-blue/10 text-blue',
+                    )}
+                  >
+                    {c.status === 'PR_OPENED' ? 'PR Open' : 'Started'}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">
+                    {formatRelativeTime(c.prOpenedAt ?? c.startedAt)}
+                  </span>
+                  {c.status === 'PR_OPENED' && (
+                    <button
+                      onClick={() =>
+                        syncContribution.mutate(c.id, {
+                          onSuccess: (data) => {
+                            const s = data?.data?.status;
+                            if (s === 'PR_MERGED') {
+                              setToast({ message: 'PR merged! Congratulations!', type: 'success' });
+                              setTimeout(() => setToast(null), 4000);
+                            }
+                          },
+                        })
+                      }
+                      disabled={syncContribution.isPending}
+                      title="Sync with GitHub"
+                      className="rounded p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-40"
+                    >
+                      <RefreshCw className={cn('h-3 w-3', syncContribution.isPending && 'animate-spin')} />
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* Featured Recommendation */}
       <motion.div
