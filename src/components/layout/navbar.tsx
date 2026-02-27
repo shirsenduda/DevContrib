@@ -113,12 +113,22 @@ export function Navbar() {
               </button>
             </>
           ) : (
-            <Link
-              href="/login"
-              className="rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground transition-all hover:opacity-90"
-            >
-              Sign In
-            </Link>
+            <div className="flex items-center gap-3">
+              <a
+                href="https://github.com/shirsenduda/DevContrib/discussions"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Feedback
+              </a>
+              <Link
+                href="/login"
+                className="rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground transition-all hover:opacity-90"
+              >
+                Sign In
+              </Link>
+            </div>
           )}
         </div>
       </div>
