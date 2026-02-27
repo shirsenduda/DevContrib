@@ -20,11 +20,22 @@ const LANGUAGES = [
   'Rust',
   'Java',
   'C#',
+  'C++',
+  'C',
   'Ruby',
   'PHP',
   'Swift',
   'Kotlin',
-  'C++',
+  'Dart',
+  'Scala',
+  'Elixir',
+  'Haskell',
+  'Lua',
+  'R',
+  'Shell',
+  'Zig',
+  'Svelte',
+  'Vue',
 ];
 
 interface ProfileFormProps {
