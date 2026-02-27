@@ -1,0 +1,56 @@
+name: Feature Request
+description: Suggest a new feature or improvement
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Got an idea? We'd love to hear it. Please describe it clearly below.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Is your feature request related to a problem? Describe the pain point.
+      placeholder: "I find it frustrating when..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe what you'd like to see added or changed.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any other approaches you considered?
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of the platform would this affect?
+      options:
+        - Issue Recommendations / AI matching
+        - DCS Score algorithm
+        - PR Tracking
+        - Notifications
+        - Admin Dashboard
+        - Explore / Filtering
+        - User Profile
+        - API / Backend
+        - UI / Design
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Screenshots, mockups, or links to similar features elsewhere.

@@ -1,0 +1,8 @@
+# All files — maintainer is auto-requested for review on every PR
+* @shirsenduda
+
+# Critical paths — explicitly owned
+/prisma/         @shirsenduda
+/src/services/   @shirsenduda
+/src/lib/        @shirsenduda
+/.github/        @shirsenduda
