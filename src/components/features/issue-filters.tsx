@@ -12,9 +12,22 @@ const LANGUAGES = [
   'Rust',
   'Java',
   'C#',
+  'C++',
+  'C',
   'Ruby',
   'PHP',
   'Swift',
+  'Kotlin',
+  'Dart',
+  'Scala',
+  'Elixir',
+  'Haskell',
+  'Lua',
+  'R',
+  'Shell',
+  'Zig',
+  'Svelte',
+  'Vue',
 ];
 
 const DIFFICULTIES = [
