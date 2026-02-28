@@ -1,7 +1,7 @@
 import type { Job } from 'bullmq';
 import prisma from '@/lib/db';
 import { getPullRequestStatus } from '@/lib/github';
-import { getNovu } from '@/lib/novu';
+import { notifyPRMerged, notifyPRClosed } from '@/lib/notification-service';
 import { logger } from '@/lib/logger';
 
 export async function processCheckPrStatus(job: Job) {
@@ -41,16 +41,11 @@ export async function processCheckPrStatus(job: Job) {
         logger.info({ contributionId: contribution.id }, 'PR merged');
 
         try {
-          await getNovu().trigger({
-            workflowId: 'dc-pr-merged',
-            to: contribution.userId,
-            transactionId: `pr-merged-${contribution.id}`,
-            payload: {
-              repoFullName: repo.fullName,
-              issueTitle: contribution.issue.title,
-              prNumber: contribution.prNumber,
-              prUrl: contribution.prUrl,
-            },
+          await notifyPRMerged(contribution.userId, {
+            repoFullName: repo.fullName,
+            issueTitle: contribution.issue.title,
+            prNumber: contribution.prNumber!,
+            prUrl: contribution.prUrl ?? '',
           });
         } catch (e) {
           logger.error({ contributionId: contribution.id, error: e }, 'Failed to send pr-merged notification');
@@ -67,16 +62,11 @@ export async function processCheckPrStatus(job: Job) {
         logger.info({ contributionId: contribution.id }, 'PR closed');
 
         try {
-          await getNovu().trigger({
-            workflowId: 'dc-pr-closed',
-            to: contribution.userId,
-            transactionId: `pr-closed-${contribution.id}`,
-            payload: {
-              repoFullName: repo.fullName,
-              issueTitle: contribution.issue.title,
-              prNumber: contribution.prNumber,
-              prUrl: contribution.prUrl,
-            },
+          await notifyPRClosed(contribution.userId, {
+            repoFullName: repo.fullName,
+            issueTitle: contribution.issue.title,
+            prNumber: contribution.prNumber!,
+            prUrl: contribution.prUrl ?? '',
           });
         } catch (e) {
           logger.error({ contributionId: contribution.id, error: e }, 'Failed to send pr-closed notification');

@@ -29,9 +29,6 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
     "@hookform/resolvers": "^5.2.2",
-    "@novu/api": "^3.13.0",
-    "@novu/framework": "^2.9.0",
-    "@novu/nextjs": "^3.14.0",
     "@octokit/graphql": "^9.0.3",
     "@octokit/rest": "^22.0.1",
     "@octokit/webhooks": "^14.2.0",
