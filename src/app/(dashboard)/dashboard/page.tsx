@@ -72,7 +72,7 @@ export default function DashboardPage() {
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-10">
+    <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
       {/* Greeting */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
