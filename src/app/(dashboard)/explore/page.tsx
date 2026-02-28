@@ -8,9 +8,13 @@ import type { Difficulty } from '@/types';
 import { useFilterStore } from '@/stores/filter-store';
 import { useRouter } from 'next/navigation';
 import { Compass, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function ExplorePage() {
+  // Mark onboarding "explore" step as complete on first visit
+  useEffect(() => {
+    localStorage.setItem('devcontrib:explored', '1');
+  }, []);
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
