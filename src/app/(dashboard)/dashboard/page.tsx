@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Sparkles, RefreshCw, AlertCircle, ArrowRight, Compass, GitFork, GitMerge, TrendingUp, Award, GitPullRequest, Clock, ChevronRight } from 'lucide-react';
 import { IssueCard } from '@/components/features/issue-card';
+import { OnboardingChecklist } from '@/components/features/onboarding-checklist';
 import { useRecommendation } from '@/hooks/use-issues';
 import { useContributions, useStartContribution, useSyncContribution } from '@/hooks/use-contributions';
 import { useUserStats, useDCS } from '@/hooks/use-profile';
@@ -86,6 +87,16 @@ export default function DashboardPage() {
           Here&apos;s what we found for you today
         </p>
       </motion.div>
+
+      {/* Onboarding checklist — shown until all steps complete */}
+      <OnboardingChecklist
+        hasContributions={(contributionsData?.data || []).filter(
+          (c: { status: string }) => c.status !== 'ABANDONED',
+        ).length > 0}
+        hasOpenPR={(contributionsData?.data || []).some(
+          (c: { prNumber: number | null }) => c.prNumber !== null,
+        )}
+      />
 
       {/* Quick Stats Row */}
       <motion.div
