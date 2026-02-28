@@ -180,24 +180,6 @@ export default function ContributionsPage() {
         ))}
       </div>
 
-      {/* While you wait — recommendations for users with open PRs */}
-      {hasOpenPRs && recommendations && recommendations.length > 0 && (
-        <div className="mb-8 rounded-xl border border-border bg-card p-5">
-          <div className="mb-4 flex items-center gap-2">
-            <Lightbulb className="h-4 w-4 text-amber-500" />
-            <div>
-              <h3 className="text-sm font-semibold">While you wait</h3>
-              <p className="text-xs text-muted-foreground">Pick up another issue while your PR is being reviewed</p>
-            </div>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {recommendations.map((issue) => (
-              <IssueCard key={issue.id} issue={issue} />
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Contribution list */}
       {isLoading ? (
         <div className="space-y-3">
@@ -241,6 +223,24 @@ export default function ContributionsPage() {
               Explore Issues
             </Link>
           )}
+        </div>
+      )}
+
+      {/* While you wait — recommendations shown below the list for users with open PRs */}
+      {hasOpenPRs && recommendations && recommendations.length > 0 && (
+        <div className="mt-10 rounded-xl border border-border bg-card p-5">
+          <div className="mb-4 flex items-center gap-2">
+            <Lightbulb className="h-4 w-4 text-amber-500" />
+            <div>
+              <h3 className="text-sm font-semibold">While you wait</h3>
+              <p className="text-xs text-muted-foreground">Pick up another issue while your PR is being reviewed</p>
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {recommendations.map((issue) => (
+              <IssueCard key={issue.id} issue={issue} />
+            ))}
+          </div>
         </div>
       )}
 
