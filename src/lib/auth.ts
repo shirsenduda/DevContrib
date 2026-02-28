@@ -2,7 +2,6 @@ import NextAuth from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from './db';
 import { authConfig } from './auth.config';
-import { getNovu } from './novu';
 import { isAdmin } from './admin';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -35,19 +34,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               bio: ghProfile.bio || null,
             },
           });
-
-          // Sync subscriber to Novu for notifications (create auto-upserts)
-          try {
-            const novu = getNovu();
-            await novu.subscribers.create({
-              subscriberId: user.id,
-              email: user.email || undefined,
-              firstName: ghProfile.name?.split(' ')[0],
-              avatar: ghProfile.avatar_url,
-            });
-          } catch {
-            // Non-fatal — Novu auto-creates subscribers on first trigger
-          }
         }
       }
       return token;
