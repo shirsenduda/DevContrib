@@ -1,10 +1,9 @@
 import type { Job } from 'bullmq';
 import prisma from '@/lib/db';
-import { getNovu } from '@/lib/novu';
+import { notifyContributionReminder } from '@/lib/notification-service';
 import { logger } from '@/lib/logger';
 
 export async function processSendNotification(job: Job) {
-  // Handle daily contribution reminders (scheduled at 9 AM)
   if (job.name === 'contribution-reminders') {
     return processContributionReminders(job);
   }
@@ -37,15 +36,9 @@ async function processContributionReminders(job: Job) {
 
   for (const c of candidates) {
     try {
-      await getNovu().trigger({
-        workflowId: 'dc-contribution-reminder',
-        to: c.userId,
-        transactionId: `reminder-${c.id}`,
-        payload: {
-          repoFullName: c.issue.repository.fullName,
-          issueTitle: c.issue.title,
-          daysRemaining: 7,
-        },
+      await notifyContributionReminder(c.userId, {
+        repoFullName: c.issue.repository.fullName,
+        issueTitle: c.issue.title,
       });
       sent++;
     } catch (e) {

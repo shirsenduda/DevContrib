@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { createApiResponse, createErrorResponse } from '@/lib/api-helpers';
 import prisma from '@/lib/db';
-import { getNovu } from '@/lib/novu';
+import { notifyContributionReminder, notifyPRWaiting5d, notifyPRWaiting10d } from '@/lib/notification-service';
 import { logger } from '@/lib/logger';
 
 function verifyCronSecret(request: NextRequest): boolean {
@@ -42,15 +42,9 @@ export async function POST(request: NextRequest) {
     let remindersSent = 0;
     for (const c of reminderCandidates) {
       try {
-        await getNovu().trigger({
-          workflowId: 'dc-contribution-reminder',
-          to: c.userId,
-          transactionId: `reminder-${c.id}`,
-          payload: {
-            repoFullName: c.issue.repository.fullName,
-            issueTitle: c.issue.title,
-            daysRemaining: 7,
-          },
+        await notifyContributionReminder(c.userId, {
+          repoFullName: c.issue.repository.fullName,
+          issueTitle: c.issue.title,
         });
         remindersSent++;
       } catch (e) {
@@ -80,22 +74,11 @@ export async function POST(request: NextRequest) {
     let sent5d = 0;
     for (const c of fiveDayCandidates) {
       try {
-        await getNovu().trigger({
-          workflowId: 'dc-pr-waiting-5d',
-          to: c.userId,
-          transactionId: `pr-health-5d-${c.id}`,
-          payload: {
-            repoFullName: c.issue.repository.fullName,
-            issueTitle: c.issue.title,
-            prNumber: c.prNumber,
-            prUrl: c.prUrl,
-            daysWaiting: 5,
-            tips: [
-              'Check if your CI/tests are passing on the PR',
-              'Leave a polite comment: "Ready for review when you have time!"',
-              'Check if the repo has a Discord or Slack — ask there',
-            ],
-          },
+        await notifyPRWaiting5d(c.userId, {
+          repoFullName: c.issue.repository.fullName,
+          issueTitle: c.issue.title,
+          prNumber: c.prNumber!,
+          prUrl: c.prUrl ?? '',
         });
         sent5d++;
       } catch (e) {
@@ -124,22 +107,11 @@ export async function POST(request: NextRequest) {
     let sent10d = 0;
     for (const c of tenDayCandidates) {
       try {
-        await getNovu().trigger({
-          workflowId: 'dc-pr-waiting-10d',
-          to: c.userId,
-          transactionId: `pr-health-10d-${c.id}`,
-          payload: {
-            repoFullName: c.issue.repository.fullName,
-            issueTitle: c.issue.title,
-            prNumber: c.prNumber,
-            prUrl: c.prUrl,
-            daysWaiting: 10,
-            tips: [
-              'Tag a specific maintainer (check the CODEOWNERS file)',
-              'Check if the repo is still active — look at recent merge dates',
-              'Start a parallel contribution while waiting — your DCS score counts multiple active contributions',
-            ],
-          },
+        await notifyPRWaiting10d(c.userId, {
+          repoFullName: c.issue.repository.fullName,
+          issueTitle: c.issue.title,
+          prNumber: c.prNumber!,
+          prUrl: c.prUrl ?? '',
         });
         sent10d++;
       } catch (e) {

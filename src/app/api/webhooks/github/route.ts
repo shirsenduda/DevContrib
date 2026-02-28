@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Webhooks } from '@octokit/webhooks';
 import prisma from '@/lib/db';
-import { getNovu } from '@/lib/novu';
+import { notifyPRMerged, notifyPRClosed } from '@/lib/notification-service';
 import { logger } from '@/lib/logger';
 
 function getWebhooks() {
@@ -82,16 +82,11 @@ async function handlePullRequestEvent(payload: { action: string; pull_request: {
 
       if (contribution.prNumber && contribution.prUrl) {
         try {
-          await getNovu().trigger({
-            workflowId: 'pr-merged',
-            to: contribution.userId,
-            transactionId: `pr-merged-${contribution.id}`,
-            payload: {
-              repoFullName: contribution.issue.repository.fullName,
-              issueTitle: contribution.issue.title,
-              prNumber: contribution.prNumber,
-              prUrl: contribution.prUrl,
-            },
+          await notifyPRMerged(contribution.userId, {
+            repoFullName: contribution.issue.repository.fullName,
+            issueTitle: contribution.issue.title,
+            prNumber: contribution.prNumber,
+            prUrl: contribution.prUrl,
           });
         } catch (e) {
           logger.error({ contributionId: contribution.id, error: e }, 'Failed to send pr-merged notification');
@@ -109,16 +104,11 @@ async function handlePullRequestEvent(payload: { action: string; pull_request: {
 
       if (contribution.prNumber && contribution.prUrl) {
         try {
-          await getNovu().trigger({
-            workflowId: 'pr-closed',
-            to: contribution.userId,
-            transactionId: `pr-closed-${contribution.id}`,
-            payload: {
-              repoFullName: contribution.issue.repository.fullName,
-              issueTitle: contribution.issue.title,
-              prNumber: contribution.prNumber,
-              prUrl: contribution.prUrl,
-            },
+          await notifyPRClosed(contribution.userId, {
+            repoFullName: contribution.issue.repository.fullName,
+            issueTitle: contribution.issue.title,
+            prNumber: contribution.prNumber,
+            prUrl: contribution.prUrl,
           });
         } catch (e) {
           logger.error({ contributionId: contribution.id, error: e }, 'Failed to send pr-closed notification');

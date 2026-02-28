@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { Menu, X, LogOut, User, LayoutDashboard, Compass, History, Flame, Shield } from 'lucide-react';
 import { useUserStats } from '@/hooks/use-profile';
 import { cn } from '@/lib/utils';
-import { NotificationInbox } from './notification-inbox';
+import { NotificationBell } from './notification-bell';
 import { Logo } from './logo';
 
 const navLinks = [
@@ -64,7 +64,7 @@ export function Navbar() {
               )}
 
               {/* Notifications */}
-              <NotificationInbox />
+              <NotificationBell />
 
               {/* Admin link - only for admins */}
               {session.user?.isAdmin && (
