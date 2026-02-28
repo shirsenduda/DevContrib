@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Hourglass,
   Check,
+  MoreHorizontal,
 } from 'lucide-react';
 import { cn, formatRelativeTime } from '@/lib/utils';
 import type { ContributionStatus } from '@/types';
@@ -157,6 +158,7 @@ export function ContributionCard({ contribution, onUpdateStatus, onSync, isUpdat
   const StatusIcon = config.icon;
   const [showPrForm, setShowPrForm] = useState(false);
   const [showAbandonConfirm, setShowAbandonConfirm] = useState(false);
+  const [showOverflow, setShowOverflow] = useState(false);
   const [prUrl, setPrUrl] = useState('');
   const [prUrlError, setPrUrlError] = useState('');
 
@@ -373,31 +375,12 @@ export function ContributionCard({ contribution, onUpdateStatus, onSync, isUpdat
         )}
 
         {contribution.status === 'STARTED' && onUpdateStatus && !showPrForm && !showAbandonConfirm && (
-          <>
-            <button
-              onClick={() => setShowPrForm(true)}
-              className="inline-flex items-center gap-1 rounded-lg bg-foreground px-2.5 py-1 text-[11px] font-medium text-background transition-all hover:opacity-90"
-            >
-              <GitPullRequest className="h-3 w-3" />
-              I opened a PR
-            </button>
-            <button
-              onClick={() => setShowAbandonConfirm(true)}
-              disabled={isUpdating}
-              className="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-destructive/30 hover:text-destructive"
-            >
-              Abandon
-            </button>
-          </>
-        )}
-
-        {contribution.status === 'PR_OPENED' && onUpdateStatus && !showAbandonConfirm && (
           <button
-            onClick={() => setShowAbandonConfirm(true)}
-            disabled={isUpdating}
-            className="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-destructive/30 hover:text-destructive"
+            onClick={() => setShowPrForm(true)}
+            className="inline-flex items-center gap-1 rounded-lg bg-foreground px-2.5 py-1 text-[11px] font-medium text-background transition-all hover:opacity-90"
           >
-            Abandon
+            <GitPullRequest className="h-3 w-3" />
+            I opened a PR
           </button>
         )}
 
@@ -414,6 +397,35 @@ export function ContributionCard({ contribution, onUpdateStatus, onSync, isUpdat
             )}
             {isSyncing ? 'Syncing...' : 'Sync with GitHub'}
           </button>
+        )}
+
+        {/* Overflow menu — contains Abandon */}
+        {onUpdateStatus && (contribution.status === 'STARTED' || contribution.status === 'PR_OPENED') && !showAbandonConfirm && (
+          <div className="relative ml-auto">
+            <button
+              onClick={() => setShowOverflow((v) => !v)}
+              className="inline-flex items-center rounded-lg border border-border p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              title="More options"
+            >
+              <MoreHorizontal className="h-3.5 w-3.5" />
+            </button>
+            {showOverflow && (
+              <>
+                {/* Click-outside trap */}
+                <div className="fixed inset-0 z-10" onClick={() => setShowOverflow(false)} />
+                <div className="absolute right-0 top-full z-20 mt-1 min-w-32.5 rounded-lg border border-border bg-card shadow-lg">
+                  <button
+                    onClick={() => { setShowOverflow(false); setShowAbandonConfirm(true); }}
+                    disabled={isUpdating}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[11px] font-medium text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50"
+                  >
+                    <XCircle className="h-3.5 w-3.5" />
+                    Abandon
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         )}
       </div>
     </div>

@@ -266,19 +266,22 @@ export function IssueCard({
           </div>
         </div>
 
-        {/* Match score (featured) */}
-        {isFeatured && issue.matchScore > 0 && (
+        {/* Match score */}
+        {issue.matchScore > 0 && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-md border border-blue/20 bg-blue/10 px-2.5 py-1 text-[11px]"
+            className={cn(
+              'mt-3 inline-flex items-center gap-1.5 rounded-md border border-blue/20 bg-blue/10 px-2.5 py-1 text-[11px]',
+              !isFeatured && 'border-blue/10',
+            )}
           >
             <Zap className="h-3 w-3 text-blue" />
             <span className="font-semibold text-blue">
               {Math.round(issue.matchScore * 100)}% match
             </span>
-            <span className="text-muted-foreground">for your profile</span>
+            {isFeatured && <span className="text-muted-foreground">for your profile</span>}
           </motion.div>
         )}
       </div>
