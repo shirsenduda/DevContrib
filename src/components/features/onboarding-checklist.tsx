@@ -51,15 +51,28 @@ interface OnboardingChecklistProps {
   hasOpenPR: boolean;
 }
 
-export function OnboardingChecklist({ hasContributions, hasOpenPR }: OnboardingChecklistProps) {
-  const [explored, setExplored] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
-  const [mounted, setMounted] = useState(false);
+function readLocalStorage() {
+  if (typeof window === 'undefined') return { explored: false, dismissed: false };
+  return {
+    explored: localStorage.getItem('devcontrib:explored') === '1',
+    dismissed: localStorage.getItem('devcontrib:onboarding-dismissed') === '1',
+  };
+}
 
+export function OnboardingChecklist({ hasContributions, hasOpenPR }: OnboardingChecklistProps) {
+  // Lazy initializer reads localStorage only on the client; server returns safe defaults
+  const [explored, setExplored] = useState(() => readLocalStorage().explored);
+  const [dismissed, setDismissed] = useState(() => readLocalStorage().dismissed);
+
+  // Keep dismissed in sync if another tab/component changes it
   useEffect(() => {
-    setMounted(true);
-    setExplored(localStorage.getItem('devcontrib:explored') === '1');
-    setDismissed(localStorage.getItem('devcontrib:onboarding-dismissed') === '1');
+    const handler = () => {
+      const next = readLocalStorage();
+      if (next.explored) setExplored(true);
+      if (next.dismissed) setDismissed(true);
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
   }, []);
 
   const completedMap: Record<StepId, boolean> = {
@@ -73,7 +86,7 @@ export function OnboardingChecklist({ hasContributions, hasOpenPR }: OnboardingC
   const completedCount = Object.values(completedMap).filter(Boolean).length;
   const allComplete = completedCount === STEPS.length;
 
-  // Auto-dismiss after a short delay when all steps are done
+  // Auto-dismiss 2.5 s after all steps done
   useEffect(() => {
     if (!allComplete) return;
     const t = setTimeout(() => {
@@ -88,8 +101,7 @@ export function OnboardingChecklist({ hasContributions, hasOpenPR }: OnboardingC
     setDismissed(true);
   };
 
-  // Don't render until localStorage is read (avoids hydration flicker)
-  if (!mounted || dismissed) return null;
+  if (dismissed) return null;
 
   return (
     <motion.div
@@ -103,7 +115,7 @@ export function OnboardingChecklist({ hasContributions, hasOpenPR }: OnboardingC
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <div>
           <h2 className="text-sm font-semibold">
-            {allComplete ? 'You&apos;re all set!' : 'Get started'}
+            {allComplete ? "You're all set!" : 'Get started'}
           </h2>
           <p className="mt-0.5 text-[11px] text-muted-foreground">
             {completedCount} of {STEPS.length} steps complete
@@ -145,9 +157,7 @@ export function OnboardingChecklist({ hasContributions, hasOpenPR }: OnboardingC
               <div
                 className={cn(
                   'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-colors',
-                  done
-                    ? 'border-foreground bg-foreground'
-                    : 'border-border bg-transparent',
+                  done ? 'border-foreground bg-foreground' : 'border-border bg-transparent',
                 )}
               >
                 {done ? (
@@ -172,9 +182,7 @@ export function OnboardingChecklist({ hasContributions, hasOpenPR }: OnboardingC
 
               {/* Arrow for actionable incomplete steps */}
               {!done && step.href && (
-                <span className="text-[11px] font-medium text-blue">
-                  Go →
-                </span>
+                <span className="text-[11px] font-medium text-blue">Go →</span>
               )}
             </div>
           );
