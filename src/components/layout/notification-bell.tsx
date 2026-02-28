@@ -116,7 +116,7 @@ export function NotificationBell() {
       {open && (
         <div
           ref={panelRef}
-          className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-xl border border-border bg-card shadow-2xl"
+          className="absolute right-0 top-full z-50 mt-2 w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-border bg-card shadow-2xl sm:w-80"
         >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
@@ -161,7 +161,7 @@ export function NotificationBell() {
                     onClick={() => handleNotificationClick(n)}
                     className={cn(
                       'flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-secondary/50',
-                      !n.readAt && 'bg-blue/[0.04]',
+                      !n.readAt && 'bg-blue/4',
                     )}
                   >
                     {/* Icon */}

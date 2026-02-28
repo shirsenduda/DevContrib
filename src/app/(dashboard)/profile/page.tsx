@@ -34,7 +34,7 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-10">
+    <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-10">
       {isLoading ? (
         <div className="space-y-4">
           <div className="h-40 animate-pulse rounded-xl border border-border bg-card" />
