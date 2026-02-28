@@ -317,7 +317,7 @@ export default function LandingPage() {
             {[
               { value: platformStats.repos, suffix: '+', label: 'Curated Repos' },
               { value: platformStats.issues, suffix: '+', label: 'Active Issues' },
-              { value: platformStats.mergeRate, suffix: '%', label: 'Merge Rate' },
+              { value: platformStats.mergeRate, suffix: '%', label: 'Avg. Merge Chance' },
               { value: 5, suffix: ' min', label: 'To First Match', prefix: '< ' },
             ].map((stat, index) => (
               <motion.div
