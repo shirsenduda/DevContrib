@@ -28,7 +28,7 @@ const nextConfig: NextConfig = {
             "style-src 'self' 'unsafe-inline'",
             "img-src 'self' data: https://avatars.githubusercontent.com",
             "font-src 'self'",
-            `connect-src 'self' https://api.github.com https://api.novu.co https://*.novu.co wss://*.novu.co${isDev ? ' ws://localhost:* ws://127.0.0.1:*' : ''}`,
+            `connect-src 'self' https://api.github.com${isDev ? ' ws://localhost:* ws://127.0.0.1:*' : ''}`,
             "frame-ancestors 'none'",
           ].join('; '),
         },
